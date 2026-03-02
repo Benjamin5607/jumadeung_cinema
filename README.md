@@ -22,5 +22,5 @@
 1. 리포지토리 복제
 
 ```bash
-git clone https://github.com/USERNAME/jumadeung-cinema.git
-cd jumadeung-cinema
+git clone https://github.com/USERNAME/jumadeung_cinema.git
+cd jumadeung_cinema
