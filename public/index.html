@@ -1,91 +1,92 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>주마등 : 시네마 v16.1</title>
-<link rel="stylesheet" href="style.css">
-<link rel="icon" href="assets/favicon.ico">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>주마등 : 시네마</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="grain"></div>
-<div class="floating-lights">
-  <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
-  <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
-  <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
-</div>
-<div class="grim-wrapper">
-  <img src="assets/grim_reaper.png" alt="Grim Reaper" class="grim"/>
-</div>
 
-<div class="container">
-  <h1>주마등 : 시네마 v16.1</h1>
-  <p class="subtitle">6초 인생 자동 타임라인 생성기 (BYOK 지원)</p>
-
-  <label>Language:
-    <select id="langSelect">
-      <option value="ko">한국어</option>
-      <option value="en">English</option>
-    </select>
-  </label>
-
-  <label>AI API Key:
-    <input id="apiKey" placeholder="Groq / OpenAI / Gemini API Key 입력">
-  </label>
-  <button id="loadModels">모델 리스트 불러오기</button>
-
-  <label>AI 모델 선택:
-    <select id="aiModel">
-      <option value="">모델 불러오기 필요</option>
-    </select>
-  </label>
-
-  <label for="timelineMode">
-    <input type="checkbox" id="timelineMode"> 🧠 2시간 자동 타임라인 모드
-  </label>
-
-  <h3>오늘의 일기</h3>
-  <textarea id="diary" placeholder="오늘의 장면을 적어주세요..."></textarea>
-
-  <h3>영상 스타일</h3>
-  <select id="videoStyle">
-    <option>흑백 시네마틱</option>
-    <option>몽환적 안개</option>
-    <option>느린 카메라 워킹</option>
-  </select>
-
-  <h3>캐릭터 스타일</h3>
-  <select id="characterStyle">
-    <option value="Pixar 3D Animation">Pixar 3D Animation</option>
-    <option value="Studio Ghibli Style">Studio Ghibli Style</option>
-    <option value="Realistic Cinematic Film">Realistic Cinematic Film</option>
-    <option value="Noir Black & White">Noir Black & White</option>
-    <option value="Makoto Shinkai Anime">Makoto Shinkai Anime</option>
-    <option value="Hyperrealistic 4K">Hyperrealistic 4K</option>
-    <option value="Claymation">Claymation</option>
-    <option value="Vintage 90s Film">Vintage 90s Film</option>
-    <option value="custom">직접 입력</option>
-  </select>
-  <input id="customStyle" placeholder="스타일 직접 입력" style="display:none;">
-
-  <h3>캐릭터 특징</h3>
-  <input id="characterDesc" placeholder="예: 30대 남자, 한국인, 뿔테 안경, 근육질, 피곤함">
-
-  <button id="generateBtn">프롬프트 생성</button>
-
-  <div class="stats">
-    <p id="sceneCount"></p>
-    <p id="totalDuration"></p>
+  <div class="grain"></div> <div class="floating-lights">
+    <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
+    <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
+    <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
   </div>
 
-  <h3>한글 프롬프트</h3>
-  <textarea id="outputKR"></textarea>
-  <button id="copyKR">복사하기</button>
+  <div class="grim-wrapper">
+    <img src="assets/grim_reaper.png" alt="Grim Reaper" class="grim" onerror="this.style.display='none'"/>
+  </div>
 
-  <h3>영문 프롬프트</h3>
-  <textarea id="outputEN"></textarea>
-  <button id="copyEN">Copy</button>
-</div>
+  <div class="container">
+    <h1>주마등 : 시네마</h1>
+    <p class="subtitle">6초 인생 자동 타임라인 생성기 (BYOK 지원)</p>
 
-<script src="app.js"></script>
+    <label>Language:
+      <select id="langSelect">
+        <option value="ko">한국어</option>
+        <option value="en">English</option>
+      </select>
+    </label>
+
+    <label>AI API Key:
+      <input id="apiKey" placeholder="Groq (gq-) / OpenAI (sk-) / Gemini (AIza-) API Key 입력">
+    </label>
+    <button id="loadModels">모델 리스트 불러오기</button>
+
+    <label>AI 모델 선택:
+      <select id="aiModel">
+        <option value="">모델 불러오기 필요</option>
+      </select>
+    </label>
+
+    <label for="timelineMode">
+      <input type="checkbox" id="timelineMode"> 🧠 2시간 자동 타임라인 모드
+    </label>
+
+    <h3>오늘의 일기</h3>
+    <textarea id="diary" placeholder="오늘의 장면을 적어주세요..."></textarea>
+
+    <h3>영상 스타일</h3>
+    <select id="videoStyle">
+      <option>흑백 시네마틱</option>
+      <option>몽환적 안개</option>
+      <option>느린 카메라 워킹</option>
+    </select>
+
+    <h3>캐릭터 스타일</h3>
+    <select id="characterStyle">
+      <option value="Pixar 3D Animation">Pixar 3D Animation</option>
+      <option value="Studio Ghibli Style">Studio Ghibli Style</option>
+      <option value="Realistic Cinematic Film">Realistic Cinematic Film</option>
+      <option value="Noir Black & White">Noir Black & White</option>
+      <option value="Makoto Shinkai Anime">Makoto Shinkai Anime</option>
+      <option value="Hyperrealistic 4K">Hyperrealistic 4K</option>
+      <option value="Claymation">Claymation</option>
+      <option value="Vintage 90s Film">Vintage 90s Film</option>
+      <option value="custom">직접 입력</option>
+    </select>
+    <input id="customStyle" placeholder="스타일 직접 입력" style="display:none; margin-top: 10px;">
+
+    <h3>캐릭터 특징</h3>
+    <input id="characterDesc" placeholder="예: 30대 남자, 한국인, 뿔테 안경, 근육질, 피곤함">
+
+    <button id="generateBtn">프롬프트 생성</button>
+
+    <div class="stats">
+      <p id="sceneCount"></p>
+      <p id="totalDuration"></p>
+    </div>
+
+    <h3>한글 프롬프트</h3>
+    <textarea id="outputKR" class="output-area"></textarea>
+    <button id="copyKR">한글 복사하기</button>
+
+    <h3>영문 프롬프트 (AI 자동 번역/변환)</h3>
+    <textarea id="outputEN" class="output-area"></textarea>
+    <button id="copyEN">영문 복사하기</button>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
