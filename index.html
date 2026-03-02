@@ -2,15 +2,14 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>주마등 : 시네마 v7</title>
+<title>주마등 : 시네마 v9</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- 필름 그레인 -->
-<div class="grain"></div>
+<div class="grain"></div> <!-- 필름 그레인 -->
 
-<!-- 광고 상단 -->
+<!-- 상단 광고 -->
 <div class="ad-slot" id="adTop">상단 광고 영역</div>
 
 <!-- 등불 애니 -->
@@ -30,12 +29,19 @@
 </div>
 
 <div class="container">
-<h1>주마등 : 시네마 v7</h1>
-<p class="subtitle">6초 인생 자동 타임라인 생성기 (BYOK 지원)</p>
+<h1>주마등 : 시네마 v9</h1>
+<p class="subtitle">6초 인생 자동 타임라인 생성기 (다중 AI 지원)</p>
 
-<!-- BYOK API 입력 -->
-<label>AI API URL:
-  <input id="apiUrl" placeholder="https://api.example.com/v1/generate">
+<!-- AI 모델 선택 + API Key -->
+<label>AI 모델 선택:
+  <select id="aiModel">
+    <option value="grok">Grok (무료)</option>
+    <option value="openai">OpenAI GPT</option>
+    <option value="gemini">Gemini</option>
+    <option value="azure">Azure OpenAI</option>
+    <option value="claude">Claude</option>
+    <option value="hf">Hugging Face</option>
+  </select>
 </label>
 
 <label>AI API Key:
@@ -74,7 +80,7 @@
 <input id="customStyle" placeholder="스타일 직접 입력" style="display:none;">
 
 <h3>캐릭터 특징</h3>
-<input id="characterDesc" placeholder="예: 30대 남자, 한국인, 뿔테 안경, 근육질(3대500), 피곤함">
+<input id="characterDesc" placeholder="예: 30대 남자, 한국인, 뿔테 안경, 근육질, 피곤함">
 
 <button id="generateBtn">프롬프트 생성</button>
 
@@ -91,6 +97,7 @@
 <textarea id="outputEN" placeholder="영문 프롬프트 출력"></textarea>
 <button id="copyEN">복사하기</button>
 
+<!-- 하단 광고 -->
 <div class="ad-slot" id="adBottom">출력 아래 광고 영역</div>
 
 <div class="reaper-message">
