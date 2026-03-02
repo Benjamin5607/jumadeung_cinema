@@ -14,7 +14,7 @@ const reaperQuotes = [
 ];
 
 const aiModels = {
-  grok: { url:"https://api.grok.ai/v1/generate", type:"completion" },
+  groq: { url:"https://api.groq.com/openai/v1/chat/completions", type:"completion" }, // 무료 Groq
   openai: { url:"https://api.openai.com/v1/completions", type:"completion" },
   gemini: { url:"https://gemini.googleapis.com/v1/completions", type:"completion" },
   azure: { url:"https://YOUR_AZURE_ENDPOINT.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT_NAME/completions?api-version=2023-03-15-preview", type:"completion" },
@@ -64,27 +64,30 @@ async function callAI(scene, videoStyle, charStyle, charDesc){
   const model = document.getElementById("aiModel").value;
   const apiKey = document.getElementById("apiKey").value;
   if(!apiKey) return "[API Key가 필요합니다.]";
-  const {url,type} = aiModels[model];
-  const payload = { prompt: `Convert diary scene into 6s English video prompt.
+  const {url} = aiModels[model];
+  const payload = {
+    model: "gpt-4", // Groq OpenAI 호환 모델
+    messages: [{role:"user", content: `
+Convert diary scene into 6s English video prompt.
 Diary Scene: "${scene.sentences.join(" ")}"
 Style: ${videoStyle}
 Visual: ${charStyle}
 Character: ${charDesc}
 Location: ${placeMap[scene.place]||"unknown"}
 Action: ${actionMap[scene.action]||scene.sentences.join(" ")}
-`, max_tokens:500 };
-  const headers = {"Content-Type":"application/json","Authorization":`Bearer ${apiKey}`};
-  const res = await fetch(url,{method:"POST", headers, body:JSON.stringify(payload)});
+` }],
+    max_tokens:500
+  };
+  const res = await fetch(url, {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":`Bearer ${apiKey}`
+    },
+    body: JSON.stringify(payload)
+  });
   const data = await res.json();
-  switch(model){
-    case "grok": return data.text;
-    case "openai": return data.choices?.[0]?.text;
-    case "gemini": return data.completion?.text;
-    case "azure": return data.choices?.[0]?.text;
-    case "claude": return data.completion?.content;
-    case "hf": return data[0]?.generated_text;
-    default: return "[AI 프롬프트 생성 실패]";
-  }
+  return data.choices?.[0]?.message?.content || "[AI 프롬프트 생성 실패]";
 }
 
 document.getElementById("generateBtn").addEventListener("click", async function(){
