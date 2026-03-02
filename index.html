@@ -2,24 +2,19 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>주마등 : 시네마 v12</title>
+<title>주마등 : 시네마 v13</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="grain"></div> <!-- 필름 그레인 -->
 
-<!-- 상단 광고 -->
-<div class="ad-slot" id="adTop">상단 광고 영역</div>
-
-<!-- 등불 애니 -->
 <div class="floating-lights">
   <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
   <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
   <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
 </div>
 
-<!-- 저승사자 -->
 <div class="grim-wrapper">
   <svg class="grim" viewBox="0 0 64 64" width="60" height="60">
     <circle cx="32" cy="16" r="8" fill="white"/>
@@ -29,7 +24,7 @@
 </div>
 
 <div class="container">
-  <h1>주마등 : 시네마 v12</h1>
+  <h1>주마등 : 시네마 v13</h1>
   <p class="subtitle">6초 인생 자동 타임라인 생성기 (무료 Groq 지원)</p>
 
   <!-- 언어 선택 -->
@@ -40,23 +35,18 @@
     </select>
   </label>
 
-  <!-- AI 모델 선택 + API Key -->
+  <!-- AI API Key -->
+  <label>AI API Key:
+    <input id="apiKey" placeholder="여기에 Groq API Key 입력">
+  </label>
+  <button id="loadModels">모델 리스트 불러오기</button>
+
+  <!-- AI 모델 선택 -->
   <label>AI 모델 선택:
     <select id="aiModel">
-      <option value="groq" selected>Groq (무료)</option>
-      <option value="openai">OpenAI GPT</option>
-      <option value="gemini">Gemini</option>
-      <option value="azure">Azure OpenAI</option>
-      <option value="claude">Claude</option>
-      <option value="hf">Hugging Face</option>
+      <option value="">모델 불러오기 필요</option>
     </select>
   </label>
-
-  <label>AI API Key:
-    <input id="apiKey" placeholder="여기에 API Key 입력">
-  </label>
-
-  <p id="freeGrokLink"></p>
 
   <label for="timelineMode">
     <input type="checkbox" id="timelineMode"> 🧠 2시간 자동 타임라인 모드
@@ -97,19 +87,12 @@
   </div>
 
   <h3 id="outputKRLabel">한글 프롬프트</h3>
-  <textarea id="outputKR" placeholder="한글 프롬프트 출력"></textarea>
+  <textarea id="outputKR"></textarea>
   <button id="copyKR">복사하기</button>
 
   <h3 id="outputENLabel">영문 프롬프트</h3>
-  <textarea id="outputEN" placeholder="영문 프롬프트 출력"></textarea>
+  <textarea id="outputEN"></textarea>
   <button id="copyEN">Copy</button>
-
-  <!-- 하단 광고 -->
-  <div class="ad-slot" id="adBottom">출력 아래 광고 영역</div>
-
-  <div class="reaper-message">
-    💀 <span id="grimMessage"></span>
-  </div>
 </div>
 
 <script src="app.js"></script>
