@@ -37,12 +37,12 @@ document.getElementById("generateBtn").addEventListener("click", function(){
   const characterDesc = document.getElementById("characterDesc").value;
 
   let scenes = splitIntoScenes(diary);
-  if(timelineMode && scenes.length > 900){ scenes=scenes.slice(0,900); }
+  if(timelineMode && scenes.length > 1200){ scenes=scenes.slice(0,1200); }
 
   let finalText="";
   scenes.forEach((scene,index)=>{
-    finalText+=`Scene ${index+1} (${index*8}-${(index+1)*8}s)
-8초 영상 생성.
+    finalText+=`Scene ${index+1} (${index*6}-${(index+1)*6}s)
+6초 영상 생성.
 스타일:${videoStyle}
 비주얼:${charStyle}
 캐릭터:${characterDesc}
