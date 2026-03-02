@@ -2,16 +2,16 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>주마등 : 시네마</title>
+<title>주마등 : 시네마 v14-v2</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="grain"></div> <!-- 필름 그레인 -->
+<div class="grain"></div>
 <div class="floating-lights">
-  <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
-  <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
-  <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
+  <img src="assets/lights.svg" class="light"/>
+  <img src="assets/lights.svg" class="light"/>
+  <img src="assets/lights.svg" class="light"/>
 </div>
 
 <div class="grim-wrapper">
@@ -19,10 +19,7 @@
 </div>
 
 <div class="container">
-  <h1>주마등 : 시네마</h1>
-  <p class="subtitle">6초 인생 자동 타임라인 생성기 (BYOK 지원)</p>
-
-  <!-- 언어 선택 -->
+  <h1>주마등 : 시네마 v14-v2</h1>
   <label>Language:
     <select id="langSelect">
       <option value="ko">한국어</option>
@@ -30,23 +27,18 @@
     </select>
   </label>
 
-  <!-- API Key 입력 -->
   <label>AI API Key:
-    <input id="apiKey" placeholder="Groq / OpenAI / Gemini API Key 입력">
+    <input id="apiKey" placeholder="Groq / OpenAI / Gemini API Key">
   </label>
   <button id="loadModels">모델 리스트 불러오기</button>
 
-  <!-- 모델 선택 -->
   <label>AI 모델 선택:
     <select id="aiModel">
       <option value="">모델 불러오기 필요</option>
     </select>
   </label>
 
-  <!-- 옵션들 -->
-  <label for="timelineMode">
-    <input type="checkbox" id="timelineMode"> 🧠 2시간 자동 타임라인 모드
-  </label>
+  <label><input type="checkbox" id="timelineMode"> 🧠 2시간 자동 타임라인 모드</label>
 
   <h3>오늘의 일기</h3>
   <textarea id="diary" placeholder="오늘의 장면을 적어주세요..."></textarea>
@@ -76,11 +68,6 @@
   <input id="characterDesc" placeholder="예: 30대 남자, 한국인, 뿔테 안경, 근육질, 피곤함">
 
   <button id="generateBtn">프롬프트 생성</button>
-
-  <div class="stats">
-    <p id="sceneCount"></p>
-    <p id="totalDuration"></p>
-  </div>
 
   <h3>한글 프롬프트</h3>
   <textarea id="outputKR"></textarea>
