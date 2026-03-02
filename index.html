@@ -6,49 +6,58 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="lantern"></div>
 
-  <div class="container">
-    <h1>주마등 : 시네마</h1>
-    <p class="subtitle">스쳐가는 8초 인생 장면 생성기</p>
+<div class="grain"></div>
 
-    <div class="step">
-      <h2>1. 오늘의 일기</h2>
-      <textarea id="diary" placeholder="감정, 장소, 사건이 포함되면 더 좋아요..."></textarea>
-    </div>
+<div class="container">
+  <h1>주마등 : 시네마</h1>
+  <p class="subtitle">스쳐가는 8초 인생 장면 생성기</p>
 
-    <div class="step">
-      <h2>2. 영상 스타일</h2>
-      <select id="style">
-        <option value="흑백 시네마틱, 필름 그레인">흑백 시네마틱</option>
-        <option value="느린 카메라 워킹, 감성 조명">감성 브이로그</option>
-        <option value="몽환적, 안개 낀 분위기">몽환적</option>
-      </select>
-    </div>
+  <textarea id="diary" placeholder="오늘의 장면을 적어주세요..."></textarea>
 
-    <div class="step">
-      <h2>3. 캐릭터 특징</h2>
-      <input id="character" type="text" placeholder="예: 30대 남자, 지친 표정, 검은 코트">
-    </div>
+  <select id="videoStyle">
+    <option>흑백 시네마틱</option>
+    <option>몽환적 안개</option>
+    <option>느린 카메라 워킹</option>
+  </select>
 
-    <div class="step">
-      <h2>4. 장면 분위기</h2>
-      <select id="mood">
-        <option value="저승사자가 멀리서 고개를 끄덕인다">저승사자 인사</option>
-        <option value="등불이 흔들리며 과거 장면이 스쳐간다">등불 연출</option>
-        <option value="카메라가 천천히 뒤로 빠진다">엔딩 줌아웃</option>
-      </select>
-    </div>
+  <select id="characterStyle" onchange="toggleCustomStyle()">
+    <option value="Pixar 3D Animation">Pixar 3D Animation</option>
+    <option value="Studio Ghibli Style">Studio Ghibli Style</option>
+    <option value="Realistic Cinematic Film">Realistic Cinematic Film</option>
+    <option value="Noir Black & White">Noir Black & White</option>
+    <option value="Makoto Shinkai Anime">Makoto Shinkai Anime</option>
+    <option value="Hyperrealistic 4K">Hyperrealistic 4K</option>
+    <option value="Claymation">Claymation</option>
+    <option value="Vintage 90s Film">Vintage 90s Film</option>
+    <option value="custom">직접 입력</option>
+  </select>
 
-    <button onclick="generatePrompt()">프롬프트 생성</button>
+  <input id="customStyle" placeholder="스타일 직접 입력" style="display:none;" />
 
-    <div class="output">
-      <h2>🎬 Grok에 복붙하세요</h2>
-      <textarea id="result"></textarea>
-      <button onclick="copyPrompt()">복사하기</button>
-    </div>
-  </div>
+  <input id="characterDesc" placeholder="캐릭터 특징 입력" />
 
-  <script src="app.js"></script>
+  <button onclick="generateScenes()">씬 분할 + 프롬프트 생성</button>
+
+  <textarea id="output"></textarea>
+
+  <hr>
+
+  <h3>BYOK API</h3>
+
+  <select id="apiProvider">
+    <option value="openai">OpenAI</option>
+    <option value="groq">Groq</option>
+  </select>
+
+  <input id="apiKey" placeholder="API Key 입력" />
+
+  <button onclick="sendToAI()">AI로 보내기</button>
+
+  <textarea id="aiResult"></textarea>
+
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
