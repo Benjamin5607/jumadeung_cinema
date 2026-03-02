@@ -1,48 +1,69 @@
 body {
-  background: black;
-  color: white;
-  font-family: serif;
-  margin: 0;
-  padding: 20px;
-  line-height: 1.6;
+background:black;
+color:white;
+font-family:serif;
+margin:0;
+padding:30px;
+overflow-x:hidden;
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 800px;
-  margin: auto;
+max-width:900px;
+margin:auto;
+display:flex;
+flex-direction:column;
+gap:20px;
 }
 
-textarea, input, select {
-  width: 100%;
-  padding: 12px;
-  background: #111;
-  color: white;
-  border: 1px solid #333;
-  font-size: 16px;
-  resize: vertical; /* 높이 조절 가능 */
-  min-height: 60px;
+textarea,input,select {
+width:100%;
+background:#111;
+color:white;
+border:1px solid #333;
+padding:12px;
 }
 
 textarea#output {
-  min-height: 300px; /* 출력란 넓게 확보 */
+min-height:300px;
 }
 
 button {
-  background: white;
-  color: black;
-  padding: 12px 24px;
-  cursor: pointer;
-  font-size: 16px;
+background:white;
+color:black;
+padding:12px;
+cursor:pointer;
 }
 
 .grain {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background: url('https://grainy-gradients.vercel.app/noise.svg');
-  opacity: 0.05;
-  pointer-events: none;
+position:fixed;
+width:100%;
+height:100%;
+background:url('https://grainy-gradients.vercel.app/noise.svg');
+opacity:0.05;
+pointer-events:none;
+}
+
+.grim-wrapper {
+position:fixed;
+bottom:20px;
+right:20px;
+opacity:0.2;
+animation:float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+0% { transform:translateY(0px); }
+50% { transform:translateY(-10px); }
+100% { transform:translateY(0px); }
+}
+
+.stats {
+font-size:14px;
+color:gray;
+}
+
+.reaper-message {
+margin-top:20px;
+font-style:italic;
+color:#aaa;
 }
