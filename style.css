@@ -43,12 +43,18 @@ opacity:0.05;
 pointer-events:none;
 }
 
+.grim {
+  width: 80px;
+  height: 80px;
+}
+
 .grim-wrapper {
-position:fixed;
-bottom:20px;
-right:20px;
-opacity:0.2;
-animation:float 3s ease-in-out infinite;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  opacity: 0.15;
+  animation: float 3s ease-in-out infinite;
+  pointer-events: none; /* 클릭 방해 방지 */
 }
 
 @keyframes float {
