@@ -4,17 +4,15 @@
 <meta charset="UTF-8">
 <title>주마등 : 시네마 v16.1</title>
 <link rel="stylesheet" href="style.css">
+<link rel="icon" href="assets/favicon.ico">
 </head>
 <body>
-
-<div class="grain"></div> <!-- 필름 그레인 -->
-
+<div class="grain"></div>
 <div class="floating-lights">
   <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
   <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
   <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
 </div>
-
 <div class="grim-wrapper">
   <img src="assets/grim_reaper.png" alt="Grim Reaper" class="grim"/>
 </div>
@@ -31,7 +29,7 @@
   </label>
 
   <label>AI API Key:
-    <input id="apiKey" placeholder="Groq(gsk-) / OpenAI(sk-) / Gemini(gm-) API Key 입력">
+    <input id="apiKey" placeholder="Groq / OpenAI / Gemini API Key 입력">
   </label>
   <button id="loadModels">모델 리스트 불러오기</button>
 
@@ -86,8 +84,6 @@
   <h3>영문 프롬프트</h3>
   <textarea id="outputEN"></textarea>
   <button id="copyEN">Copy</button>
-
-  <div class="ad-slot">광고 배너 자리</div>
 </div>
 
 <script src="app.js"></script>
