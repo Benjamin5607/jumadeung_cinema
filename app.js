@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const reaperQuotes = [
 "이 장면도 결국 스쳐간다...",
-"8초면 충분하지 않나?",
+"6초면 충분하지 않나?",
 "모든 기억은 편집된다.",
 "너의 인생은 지금 렌더링 중이다.",
 "등불이 꺼지기 전, 다시 한번.",
@@ -53,7 +53,7 @@ document.getElementById("generateBtn").addEventListener("click", function(){
 
   document.getElementById("output").value=finalText;
   document.getElementById("sceneCount").innerText=`총 씬 수: ${scenes.length}개`;
-  document.getElementById("totalDuration").innerText=`총 길이: ${(scenes.length*8/60).toFixed(1)}분`;
+  document.getElementById("totalDuration").innerText=`총 길이: ${(scenes.length*6/60).toFixed(1)}분`;
   document.getElementById("grimMessage").innerText=reaperQuotes[Math.floor(Math.random()*reaperQuotes.length)];
 });
 
