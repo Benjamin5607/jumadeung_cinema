@@ -9,10 +9,24 @@
 
 <div class="grain"></div>
 
+<!-- 광고 상단 -->
+<div class="ad-slot" id="adTop">
+  <!-- 여기에 광고 코드 삽입 -->
+  상단 광고 영역
+</div>
+
+<!-- 등불 애니 -->
+<div class="floating-lights">
+  <div class="light"></div>
+  <div class="light"></div>
+  <div class="light"></div>
+</div>
+
+<!-- 저승사자 SVG -->
 <div class="grim-wrapper">
   <svg class="grim" viewBox="0 0 200 200">
-    <circle cx="100" cy="70" r="40" fill="white"/>
-    <rect x="70" y="110" width="60" height="60" fill="white"/>
+    <circle cx="100" cy="60" r="30" fill="white"/>
+    <rect x="70" y="100" width="60" height="60" fill="white"/>
   </svg>
 </div>
 
@@ -22,37 +36,36 @@
 <p class="subtitle">8초 인생 자동 타임라인 생성기</p>
 
 <label>
-<input type="checkbox" id="timelineMode">
-🧠 2시간 자동 타임라인 모드
+  <input type="checkbox" id="timelineMode">
+  🧠 2시간 자동 타임라인 모드
 </label>
 
 <h3>오늘의 일기</h3>
-<textarea id="diary"></textarea>
+<textarea id="diary" placeholder="오늘의 장면을 적어주세요..."></textarea>
 
 <h3>영상 스타일</h3>
 <select id="videoStyle">
-<option>흑백 시네마틱</option>
-<option>몽환적 안개</option>
-<option>느린 카메라 워킹</option>
+  <option>흑백 시네마틱</option>
+  <option>몽환적 안개</option>
+  <option>느린 카메라 워킹</option>
 </select>
 
 <h3>캐릭터 스타일</h3>
 <select id="characterStyle">
-<option value="Pixar 3D Animation">Pixar 3D Animation</option>
-<option value="Studio Ghibli Style">Studio Ghibli Style</option>
-<option value="Realistic Cinematic Film">Realistic Cinematic Film</option>
-<option value="Noir Black & White">Noir Black & White</option>
-<option value="Makoto Shinkai Anime">Makoto Shinkai Anime</option>
-<option value="Hyperrealistic 4K">Hyperrealistic 4K</option>
-<option value="Claymation">Claymation</option>
-<option value="Vintage 90s Film">Vintage 90s Film</option>
-<option value="custom">직접 입력</option>
+  <option value="Pixar 3D Animation">Pixar 3D Animation</option>
+  <option value="Studio Ghibli Style">Studio Ghibli Style</option>
+  <option value="Realistic Cinematic Film">Realistic Cinematic Film</option>
+  <option value="Noir Black & White">Noir Black & White</option>
+  <option value="Makoto Shinkai Anime">Makoto Shinkai Anime</option>
+  <option value="Hyperrealistic 4K">Hyperrealistic 4K</option>
+  <option value="Claymation">Claymation</option>
+  <option value="Vintage 90s Film">Vintage 90s Film</option>
+  <option value="custom">직접 입력</option>
 </select>
-
 <input id="customStyle" placeholder="스타일 직접 입력" style="display:none;">
 
 <h3>캐릭터 특징</h3>
-<input id="characterDesc">
+<input id="characterDesc" placeholder="예: 30대 남자, 지친 표정, 검은 코트">
 
 <button id="generateBtn">프롬프트 생성</button>
 
@@ -61,8 +74,13 @@
 <p id="totalDuration"></p>
 </div>
 
-<textarea id="output"></textarea>
+<textarea id="output" placeholder="여기에 씬 분할 프롬프트가 생성됩니다..."></textarea>
 <button id="copyBtn">복사하기</button>
+
+<!-- 광고 출력 바로 아래 -->
+<div class="ad-slot" id="adBottom">
+  출력 아래 광고 영역
+</div>
 
 <div class="reaper-message">
 💀 <span id="grimMessage"></span>
