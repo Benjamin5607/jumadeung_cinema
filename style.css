@@ -1,60 +1,63 @@
 body {
-background:black;
-color:white;
-font-family:serif;
-margin:0;
-padding:30px;
-overflow-x:hidden;
+  background:black;
+  color:white;
+  font-family:serif;
+  margin:0;
+  padding:20px;
+  overflow-x:hidden;
 }
 
 .container {
-max-width:900px;
-margin:auto;
-display:flex;
-flex-direction:column;
-gap:20px;
+  max-width:900px;
+  margin:auto;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
 }
 
 textarea,input,select {
-width:100%;
-background:#111;
-color:white;
-border:1px solid #333;
-padding:12px;
+  width:100%;
+  background:#111;
+  color:white;
+  border:1px solid #333;
+  padding:12px;
+  font-size:16px;
+  resize:vertical;
 }
 
 textarea#output {
-min-height:300px;
+  min-height:300px;
 }
 
 button {
-background:white;
-color:black;
-padding:12px;
-cursor:pointer;
+  background:white;
+  color:black;
+  padding:12px;
+  cursor:pointer;
+  font-size:16px;
 }
 
 .grain {
-position:fixed;
-width:100%;
-height:100%;
-background:url('https://grainy-gradients.vercel.app/noise.svg');
-opacity:0.05;
-pointer-events:none;
-}
-
-.grim {
-  width: 80px;
-  height: 80px;
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:url('https://grainy-gradients.vercel.app/noise.svg');
+  opacity:0.05;
+  pointer-events:none;
 }
 
 .grim-wrapper {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  opacity: 0.09;
-  animation: float 3s ease-in-out infinite;
-  pointer-events: none; /* 클릭 방해 방지 */
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  opacity:0.15;
+  animation:float 3s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.grim {
+  width:60px;
+  height:60px;
 }
 
 @keyframes float {
@@ -63,13 +66,46 @@ pointer-events:none;
 100% { transform:translateY(0px); }
 }
 
-.stats {
-font-size:14px;
-color:gray;
+/* 등불 애니 */
+.floating-lights {
+  position:fixed;
+  top:10%;
+  left:50%;
+  width:100%;
+  height:200px;
+  pointer-events:none;
+  overflow:hidden;
+}
+.light {
+  position:absolute;
+  width:6px;
+  height:20px;
+  background:orange;
+  border-radius:50%;
+  animation:lightFloat 5s linear infinite;
+  opacity:0.5;
+}
+.light:nth-child(1){left:20%; animation-delay:0s;}
+.light:nth-child(2){left:50%; animation-delay:1s;}
+.light:nth-child(3){left:80%; animation-delay:2s;}
+@keyframes lightFloat {
+0%{transform:translateY(0);}
+100%{transform:translateY(-150px);}
 }
 
-.reaper-message {
-margin-top:20px;
-font-style:italic;
-color:#aaa;
+/* 모바일 최적화 */
+@media screen and (max-width:600px){
+  .container {padding:10px;}
+  button, input, select, textarea {font-size:14px;}
+  .grim {width:40px;height:40px;}
+}
+.stats {font-size:14px;color:gray;}
+.reaper-message {margin-top:20px;font-style:italic;color:#aaa;}
+.ad-slot {
+  background:#222;
+  color:#aaa;
+  text-align:center;
+  padding:10px;
+  margin:10px 0;
+  border:1px dashed #555;
 }
