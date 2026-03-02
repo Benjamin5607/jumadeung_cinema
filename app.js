@@ -1,67 +1,100 @@
-// 키 타입 감지
+document.addEventListener("DOMContentLoaded",()=>{
+const langSelect=document.getElementById("langSelect");
+const diary=document.getElementById("diary");
+const videoStyle=document.getElementById("videoStyle");
+const characterStyleSelect=document.getElementById("characterStyle");
+const customStyleInput=document.getElementById("customStyle");
+const characterDesc=document.getElementById("characterDesc");
+const timelineMode=document.getElementById("timelineMode");
+const apiKeyInput=document.getElementById("apiKey");
+const aiModelSelect=document.getElementById("aiModel");
+const generateBtn=document.getElementById("generateBtn");
+const outputKR=document.getElementById("outputKR");
+const outputEN=document.getElementById("outputEN");
+
+characterStyleSelect.addEventListener("change",()=>{customStyleInput.style.display=characterStyleSelect.value==="custom"?"block":"none";});
+
+// 키 유형 감지
 function detectKeyType(key){
-  if(!key) return "unknown";
   if(key.startsWith("sk-")) return "openai";
   if(key.startsWith("gsk-")) return "groq";
   if(key.startsWith("gm-")) return "gemini";
   return "unknown";
 }
 
-// 모델 리스트 불러오기
+// 서버별 모델 리스트 불러오기
 async function fetchModels(key){
-  const type = detectKeyType(key);
-  if(type==="unknown") throw new Error("지원하지 않는 키 형식입니다.");
+  const type=detectKeyType(key);
+  if(type==="unknown") throw new Error("지원하지 않는 Key");
+  let url="";
+  if(type==="openai") url="https://api.openai.com/v1/models";
+  else if(type==="groq") url="https://api.groq.com/v1/models";
+  else if(type==="gemini") url="https://generativelanguage.googleapis.com/v1beta/models?key="+key;
 
-  let url="", headers={"Content-Type":"application/json"};
-  if(type==="openai") { url="https://api.openai.com/v1/models"; headers["Authorization"]=`Bearer ${key}`; }
-  else if(type==="groq") { url="https://api.groq.com/v1/models"; headers["Authorization"]=`Bearer ${key}`; }
-  else if(type==="gemini") { url=`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`; }
-
-  const res=await fetch(url,{method:"GET", headers});
-  if(!res.ok) throw new Error(`${type} 서버 연결 실패 (Status:${res.status})`);
+  const res=await fetch(url,{headers:{Authorization:`Bearer ${key}`}});
+  if(!res.ok) throw new Error(`${type} 서버 모델 불러오기 실패`);
   const data=await res.json();
-  let modelList=(type==="gemini"? data.models : data.data)||[];
-  return modelList.map(m=>({id:m.id, name:m.id}));
+
+  let list=[];
+  if(type==="groq" || type==="openai") list=data.data||[];
+  else if(type==="gemini") list=data.models||[];
+  return list.map(m=>({id:m.id||m.name,name:m.id||m.name}));
 }
 
-// UI 엘리먼트
-const loadModelsBtn=document.getElementById("loadModels");
-const apiKeyInput=document.getElementById("apiKey");
-const aiModelSelect=document.getElementById("aiModel");
-const diaryInput=document.getElementById("diaryInput");
-const generateScenesBtn=document.getElementById("generateScenes");
-const promptOutput=document.getElementById("promptOutput");
-const sceneCounter=document.getElementById("sceneCounter");
-
-// 모델 불러오기
-loadModelsBtn.addEventListener("click",async()=>{
+// 모델 리스트 로드
+document.getElementById("loadModels").addEventListener("click",async()=>{
   const key=apiKeyInput.value.trim();
+  if(!key){alert("API Key 필요");return;}
   try{
     const models=await fetchModels(key);
     aiModelSelect.innerHTML="";
-    models.forEach(m=>{
-      const opt=document.createElement("option");
-      opt.value=m.id; opt.text=m.name;
-      aiModelSelect.appendChild(opt);
-    });
-  }catch(e){ alert(e.message); }
+    models.forEach(m=>{const opt=document.createElement("option");opt.value=m.id;opt.text=m.name;aiModelSelect.appendChild(opt);});
+  }catch(e){alert(e.message);}
 });
 
-// 랜덤 저승사자 멘트
-const grimQuotes=["오늘도 지나간 삶을 지켜보겠네…","너의 선택은 이미 정해져 있다…","조금만 더 노력해봐도 소용없지…"];
-setInterval(()=>{
-  document.getElementById("grim-quote").innerText=grimQuotes[Math.floor(Math.random()*grimQuotes.length)];
-},5000);
+// 씬 분할
+function splitIntoScenes(text){
+  if(!text)return[];
+  return text.split(/[.!?]/).filter(s=>s.trim()!=="").map(s=>({sentences:[s.trim()],place:"미상",action:s.trim()}));
+}
 
-// 씬 생성 (6초 단위)
-generateScenesBtn.addEventListener("click",()=>{
-  const text=diaryInput.value.trim();
-  if(!text) return alert("일기를 입력해주세요!");
-  const scenes=Math.ceil(text.length/50); // 임시 분할 로직
-  let prompt="";
-  for(let i=0;i<scenes;i++){
-    prompt+=`Scene ${i+1} (0-${6*(i+1)}s)\n6초 영상 생성.\n내용: ${text.slice(i*50,(i+1)*50)}\n----------------\n`;
+// AI 호출
+async function callAI(scene){
+  const modelId=aiModelSelect.value;
+  const apiKey=apiKeyInput.value.trim();
+  if(!apiKey) return "[API Key 필요]";
+  if(!modelId) return "[모델 선택 필요]";
+  const type=detectKeyType(apiKey);
+  let url="";
+  if(type==="openai") url=`https://api.openai.com/v1/chat/completions`;
+  else if(type==="groq") url=`https://api.groq.com/v1/models/${modelId}/completions`;
+  else if(type==="gemini") url=`https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateMessage`;
+
+  const payload={model:modelId,messages:[{role:"user",content:scene.sentences.join(" ")}],max_tokens:500};
+  const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${apiKey}`},body:JSON.stringify(payload)});
+  const data=await res.json();
+  return data.choices?.[0]?.message?.content || "[AI 프롬프트 생성 실패]";
+}
+
+// 프롬프트 생성
+generateBtn.addEventListener("click",async()=>{
+  const scenes=splitIntoScenes(diary.value);
+  let kr="",en="";
+  for(let i=0;i<scenes.length;i++){
+    const scene=scenes[i];
+    const style=characterStyleSelect.value==="custom"?customStyleInput.value:characterStyleSelect.value;
+    kr+=`Scene ${i+1} (${i*6}-${(i+1)*6}s)
+스타일: ${videoStyle.value}
+비주얼: ${style}
+캐릭터: ${characterDesc.value}
+장소: ${scene.place}
+행동 특성: ${scene.action}
+내용: ${scene.sentences.join(" ")}
+----------------
+`;
+    const enPrompt=await callAI(scene);
+    en+=`Scene ${i+1} (${i*6}-${(i+1)*6}s)\n${enPrompt}\n----------------\n`;
   }
-  promptOutput.value=prompt;
-  sceneCounter.innerText=`씬 수: ${scenes}`;
+  outputKR.value=kr;
+  outputEN.value=en;
 });
