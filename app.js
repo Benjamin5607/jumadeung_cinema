@@ -9,7 +9,7 @@ const reaperQuotes = [
 "카메라는 항상 뒤에서 보고 있다.",
 "이 또한 하나의 씬일 뿐.",
 "흑백이 더 진짜다.",
-"지금 이 순간도 8초다.",
+"지금 이 순간도 6초다.",
 "엔딩은 이미 정해져 있다."
 ];
 
@@ -20,12 +20,31 @@ characterStyleSelect.addEventListener("change", function(){
   customStyleInput.style.display = this.value === "custom" ? "block" : "none";
 });
 
+// 장면 분할 로직: 장소 키워드 + 동사 기반
 function splitIntoScenes(text){
+  if(!text) return [];
   const sentences = text.split(/[.!?]/).filter(s => s.trim() !== "");
   let scenes=[];
-  for(let i=0;i<sentences.length;i+=3){
-    scenes.push(sentences.slice(i,i+3).join(". ") + ".");
-  }
+  let currentScene = {sentences:[], place:"", action:""};
+
+  const placeKeywords = ["회사","집","카페","공원","길","오피스","책상","폰부스"];
+  const actionKeywords = ["왔다갔다","일함","퇴근","걷","달리","앉","서","전화","읽","작성","쉬","웃","울"];
+
+  sentences.forEach(sentence=>{
+    let placeFound = placeKeywords.find(p=>sentence.includes(p));
+    let actionFound = actionKeywords.find(a=>sentence.includes(a));
+
+    if(placeFound && currentScene.sentences.length>0 && placeFound !== currentScene.place){
+      // 장소 바뀌면 새 씬
+      scenes.push({...currentScene});
+      currentScene = {sentences:[sentence], place:placeFound, action: actionFound||""};
+    } else {
+      currentScene.sentences.push(sentence);
+      if(placeFound) currentScene.place = placeFound;
+      if(actionFound) currentScene.action = actionFound;
+    }
+  });
+  if(currentScene.sentences.length>0) scenes.push(currentScene);
   return scenes;
 }
 
@@ -37,7 +56,7 @@ document.getElementById("generateBtn").addEventListener("click", function(){
   const characterDesc = document.getElementById("characterDesc").value;
 
   let scenes = splitIntoScenes(diary);
-  if(timelineMode && scenes.length > 1200){ scenes=scenes.slice(0,1200); }
+  if(timelineMode && scenes.length > 1200) scenes = scenes.slice(0,1200);
 
   let finalText="";
   scenes.forEach((scene,index)=>{
@@ -46,7 +65,9 @@ document.getElementById("generateBtn").addEventListener("click", function(){
 스타일:${videoStyle}
 비주얼:${charStyle}
 캐릭터:${characterDesc}
-내용:${scene}
+장소: ${scene.place || "미상"}
+행동 특성: ${scene.action || scene.sentences.join(" ")}
+내용: ${scene.sentences.join(" ")}
 ----------------
 `;
   });
