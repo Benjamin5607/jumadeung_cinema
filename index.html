@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>주마등 : 시네마</title>
+<title>주마등 : 시네마 v12</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -29,89 +29,89 @@
 </div>
 
 <div class="container">
-<h1></h1>
-<p class="subtitle"></p>
+  <h1>주마등 : 시네마 v12</h1>
+  <p class="subtitle">6초 인생 자동 타임라인 생성기 (무료 Groq 지원)</p>
 
-<!-- 언어 선택 -->
-<label>Language:
-  <select id="langSelect">
-    <option value="ko">한국어</option>
-    <option value="en">English</option>
+  <!-- 언어 선택 -->
+  <label>Language:
+    <select id="langSelect">
+      <option value="ko">한국어</option>
+      <option value="en">English</option>
+    </select>
+  </label>
+
+  <!-- AI 모델 선택 + API Key -->
+  <label>AI 모델 선택:
+    <select id="aiModel">
+      <option value="groq" selected>Groq (무료)</option>
+      <option value="openai">OpenAI GPT</option>
+      <option value="gemini">Gemini</option>
+      <option value="azure">Azure OpenAI</option>
+      <option value="claude">Claude</option>
+      <option value="hf">Hugging Face</option>
+    </select>
+  </label>
+
+  <label>AI API Key:
+    <input id="apiKey" placeholder="여기에 API Key 입력">
+  </label>
+
+  <p id="freeGrokLink"></p>
+
+  <label for="timelineMode">
+    <input type="checkbox" id="timelineMode"> 🧠 2시간 자동 타임라인 모드
+  </label>
+
+  <h3 id="diaryLabel">오늘의 일기</h3>
+  <textarea id="diary" placeholder="오늘의 장면을 적어주세요..."></textarea>
+
+  <h3 id="videoStyleLabel">영상 스타일</h3>
+  <select id="videoStyle">
+    <option>흑백 시네마틱</option>
+    <option>몽환적 안개</option>
+    <option>느린 카메라 워킹</option>
   </select>
-</label>
 
-<!-- AI 모델 선택 + API Key -->
-<label>AI 모델 선택:
-  <select id="aiModel">
-    <option value="groq" selected>Groq (무료)</option>
-    <option value="openai">OpenAI GPT</option>
-    <option value="gemini">Gemini</option>
-    <option value="azure">Azure OpenAI</option>
-    <option value="claude">Claude</option>
-    <option value="hf">Hugging Face</option>
+  <h3 id="characterStyleLabel">캐릭터 스타일</h3>
+  <select id="characterStyle">
+    <option value="Pixar 3D Animation">Pixar 3D Animation</option>
+    <option value="Studio Ghibli Style">Studio Ghibli Style</option>
+    <option value="Realistic Cinematic Film">Realistic Cinematic Film</option>
+    <option value="Noir Black & White">Noir Black & White</option>
+    <option value="Makoto Shinkai Anime">Makoto Shinkai Anime</option>
+    <option value="Hyperrealistic 4K">Hyperrealistic 4K</option>
+    <option value="Claymation">Claymation</option>
+    <option value="Vintage 90s Film">Vintage 90s Film</option>
+    <option value="custom">직접 입력</option>
   </select>
-</label>
+  <input id="customStyle" placeholder="스타일 직접 입력" style="display:none;">
 
-<label>AI API Key:
-  <input id="apiKey" placeholder="">
-</label>
+  <h3 id="characterDescLabel">캐릭터 특징</h3>
+  <input id="characterDesc" placeholder="예: 30대 남자, 한국인, 뿔테 안경, 근육질, 피곤함">
 
-<p id="freeGrokLink"></p>
+  <button id="generateBtn">프롬프트 생성</button>
 
-<label for="timelineMode">
-  <input type="checkbox" id="timelineMode"> 🧠 2시간 자동 타임라인 모드
-</label>
+  <div class="stats">
+    <p id="sceneCount"></p>
+    <p id="totalDuration"></p>
+  </div>
 
-<h3 id="diaryLabel"></h3>
-<textarea id="diary" placeholder="오늘의 장면을 적어주세요..."></textarea>
+  <h3 id="outputKRLabel">한글 프롬프트</h3>
+  <textarea id="outputKR" placeholder="한글 프롬프트 출력"></textarea>
+  <button id="copyKR">복사하기</button>
 
-<h3 id="videoStyleLabel"></h3>
-<select id="videoStyle">
-  <option>흑백 시네마틱</option>
-  <option>몽환적 안개</option>
-  <option>느린 카메라 워킹</option>
-</select>
+  <h3 id="outputENLabel">영문 프롬프트</h3>
+  <textarea id="outputEN" placeholder="영문 프롬프트 출력"></textarea>
+  <button id="copyEN">Copy</button>
 
-<h3 id="characterStyleLabel"></h3>
-<select id="characterStyle">
-  <option value="Pixar 3D Animation">Pixar 3D Animation</option>
-  <option value="Studio Ghibli Style">Studio Ghibli Style</option>
-  <option value="Realistic Cinematic Film">Realistic Cinematic Film</option>
-  <option value="Noir Black & White">Noir Black & White</option>
-  <option value="Makoto Shinkai Anime">Makoto Shinkai Anime</option>
-  <option value="Hyperrealistic 4K">Hyperrealistic 4K</option>
-  <option value="Claymation">Claymation</option>
-  <option value="Vintage 90s Film">Vintage 90s Film</option>
-  <option value="custom">직접 입력</option>
-</select>
-<input id="customStyle" placeholder="스타일 직접 입력" style="display:none;">
+  <!-- 하단 광고 -->
+  <div class="ad-slot" id="adBottom">출력 아래 광고 영역</div>
 
-<h3 id="characterDescLabel"></h3>
-<input id="characterDesc" placeholder="예: 30대 남자, 한국인, 뿔테 안경, 근육질, 피곤함">
-
-<button id="generateBtn"></button>
-
-<div class="stats">
-<p id="sceneCount"></p>
-<p id="totalDuration"></p>
-</div>
-
-<h3 id="outputKRLabel"></h3>
-<textarea id="outputKR" placeholder="한글 프롬프트 출력"></textarea>
-<button id="copyKR"></button>
-
-<h3 id="outputENLabel"></h3>
-<textarea id="outputEN" placeholder="영문 프롬프트 출력"></textarea>
-<button id="copyEN"></button>
-
-<!-- 하단 광고 -->
-<div class="ad-slot" id="adBottom">출력 아래 광고 영역</div>
-
-<div class="reaper-message">
-💀 <span id="grimMessage"></span>
+  <div class="reaper-message">
+    💀 <span id="grimMessage"></span>
+  </div>
 </div>
 
 <script src="app.js"></script>
-</div>
 </body>
 </html>
