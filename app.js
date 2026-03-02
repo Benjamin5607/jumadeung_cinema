@@ -1,68 +1,80 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-  const characterStyleSelect = document.getElementById("characterStyle");
-  const customStyleInput = document.getElementById("customStyle");
-  const generateBtn = document.getElementById("generateBtn");
-  const copyBtn = document.getElementById("copyBtn");
+const reaperQuotes = [
+"이 장면도 결국 스쳐간다...",
+"8초면 충분하지 않나?",
+"모든 기억은 편집된다.",
+"너의 인생은 지금 렌더링 중이다.",
+"등불이 꺼지기 전, 다시 한번.",
+"카메라는 항상 뒤에서 보고 있다.",
+"이 또한 하나의 씬일 뿐.",
+"흑백이 더 진짜다.",
+"지금 이 순간도 8초다.",
+"엔딩은 이미 정해져 있다."
+];
 
-  // 캐릭터 스타일 토글
-  characterStyleSelect.addEventListener("change", function () {
-    if (this.value === "custom") {
-      customStyleInput.style.display = "block";
-    } else {
-      customStyleInput.style.display = "none";
-    }
-  });
+const characterStyleSelect = document.getElementById("characterStyle");
+const customStyleInput = document.getElementById("customStyle");
 
-  // 텍스트를 8초 씬 단위로 분할
-  function splitIntoScenes(text) {
-    const sentences = text.split(/[.!?]/).filter(s => s.trim() !== "");
-    let scenes = [];
-    for (let i = 0; i < sentences.length; i += 3) {
-      scenes.push(sentences.slice(i, i + 3).join(". ") + ".");
-    }
-    return scenes;
-  }
+characterStyleSelect.addEventListener("change", function(){
+customStyleInput.style.display = this.value === "custom" ? "block" : "none";
+});
 
-  // 씬 분할 + 프롬프트 생성
-  generateBtn.addEventListener("click", function () {
-    const diary = document.getElementById("diary").value;
-    const videoStyle = document.getElementById("videoStyle").value;
-    const characterStyleSelectVal = characterStyleSelect.value;
-    const customStyle = customStyleInput.value;
-    const characterDesc = document.getElementById("characterDesc").value;
+function splitIntoScenes(text) {
+const sentences = text.split(/[.!?]/).filter(s => s.trim() !== "");
+let scenes = [];
+for (let i = 0; i < sentences.length; i += 3) {
+scenes.push(sentences.slice(i, i + 3).join(". ") + ".");
+}
+return scenes;
+}
 
-    const characterStyle = characterStyleSelectVal === "custom" ? customStyle : characterStyleSelectVal;
+document.getElementById("generateBtn").addEventListener("click", function(){
 
-    const scenes = splitIntoScenes(diary);
+const diary = document.getElementById("diary").value;
+const videoStyle = document.getElementById("videoStyle").value;
+const timelineMode = document.getElementById("timelineMode").checked;
+const charStyle = characterStyleSelect.value === "custom"
+? customStyleInput.value
+: characterStyleSelect.value;
+const characterDesc = document.getElementById("characterDesc").value;
 
-    let finalText = "";
-    scenes.forEach((scene, index) => {
-      finalText += `
-Scene ${index + 1} (${index * 8}-${(index + 1) * 8}s)
+let scenes = splitIntoScenes(diary);
 
-8초 길이 영상 생성.
-스타일: ${videoStyle}
-비주얼 스타일: ${characterStyle}
-캐릭터: ${characterDesc}
+if (timelineMode && scenes.length > 900) {
+scenes = scenes.slice(0, 900);
+}
 
-장면 내용:
-${scene}
-
-카메라 워킹과 감정 중심 연출.
------------------------
+let finalText = "";
+scenes.forEach((scene, index)=>{
+finalText += `Scene ${index+1} (${index*8}-${(index+1)*8}s)
+8초 영상 생성.
+스타일:${videoStyle}
+비주얼:${charStyle}
+캐릭터:${characterDesc}
+내용:${scene}
+----------------
 `;
-    });
+});
 
-    document.getElementById("output").value = finalText;
-  });
+document.getElementById("output").value = finalText;
 
-  // 프롬프트 복사
-  copyBtn.addEventListener("click", function () {
-    const textarea = document.getElementById("output");
-    textarea.select();
-    document.execCommand("copy");
-    alert("복사 완료! Grok에 붙여넣으세요.");
-  });
+document.getElementById("sceneCount").innerText =
+`총 씬 수: ${scenes.length}개`;
+
+document.getElementById("totalDuration").innerText =
+`총 길이: ${(scenes.length*8/60).toFixed(1)}분`;
+
+document.getElementById("grimMessage").innerText =
+reaperQuotes[Math.floor(Math.random()*reaperQuotes.length)];
+
+});
+
+document.getElementById("copyBtn").addEventListener("click", function(){
+const textarea = document.getElementById("output");
+textarea.select();
+document.execCommand("copy");
+alert("복사 완료. Grok에 붙여넣으세요.");
+});
 
 });
