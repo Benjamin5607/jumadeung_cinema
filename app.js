@@ -2,10 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const characterStyleSelect = document.getElementById("characterStyle");
   const customStyleInput = document.getElementById("customStyle");
-  const generateBtn = document.querySelector("button");
-  const sendBtn = document.querySelectorAll("button")[1];
+  const generateBtn = document.getElementById("generateBtn");
+  const copyBtn = document.getElementById("copyBtn");
 
-  // 스타일 토글
+  // 캐릭터 스타일 토글
   characterStyleSelect.addEventListener("change", function () {
     if (this.value === "custom") {
       customStyleInput.style.display = "block";
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // 씬 분할 함수
+  // 텍스트를 8초 씬 단위로 분할
   function splitIntoScenes(text) {
     const sentences = text.split(/[.!?]/).filter(s => s.trim() !== "");
     let scenes = [];
@@ -24,23 +24,19 @@ document.addEventListener("DOMContentLoaded", function () {
     return scenes;
   }
 
-  // 프롬프트 생성
+  // 씬 분할 + 프롬프트 생성
   generateBtn.addEventListener("click", function () {
-
     const diary = document.getElementById("diary").value;
     const videoStyle = document.getElementById("videoStyle").value;
-    const characterStyleSelect = document.getElementById("characterStyle").value;
-    const customStyle = document.getElementById("customStyle").value;
+    const characterStyleSelectVal = characterStyleSelect.value;
+    const customStyle = customStyleInput.value;
     const characterDesc = document.getElementById("characterDesc").value;
 
-    const characterStyle = characterStyleSelect === "custom"
-      ? customStyle
-      : characterStyleSelect;
+    const characterStyle = characterStyleSelectVal === "custom" ? customStyle : characterStyleSelectVal;
 
     const scenes = splitIntoScenes(diary);
 
     let finalText = "";
-
     scenes.forEach((scene, index) => {
       finalText += `
 Scene ${index + 1} (${index * 8}-${(index + 1) * 8}s)
@@ -61,36 +57,12 @@ ${scene}
     document.getElementById("output").value = finalText;
   });
 
-  // BYOK API 전송
-  sendBtn.addEventListener("click", async function () {
-
-    const provider = document.getElementById("apiProvider").value;
-    const apiKey = document.getElementById("apiKey").value;
-    const prompt = document.getElementById("output").value;
-
-    let url = provider === "openai"
-      ? "https://api.openai.com/v1/chat/completions"
-      : "https://api.groq.com/openai/v1/chat/completions";
-
-    let model = provider === "openai"
-      ? "gpt-4o-mini"
-      : "mixtral-8x7b-32768";
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-
-    const data = await response.json();
-    document.getElementById("aiResult").value =
-      data.choices?.[0]?.message?.content || "에러 발생";
+  // 프롬프트 복사
+  copyBtn.addEventListener("click", function () {
+    const textarea = document.getElementById("output");
+    textarea.select();
+    document.execCommand("copy");
+    alert("복사 완료! Grok에 붙여넣으세요.");
   });
 
 });
