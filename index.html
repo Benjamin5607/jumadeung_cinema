@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>주마등 : 시네마 v6</title>
+<title>주마등 : 시네마 v7</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -30,8 +30,19 @@
 </div>
 
 <div class="container">
-<h1>주마등 : 시네마 v6</h1>
-<p class="subtitle">6초 인생 자동 타임라인 생성기</p>
+<h1>주마등 : 시네마 v7</h1>
+<p class="subtitle">6초 인생 자동 타임라인 생성기 (BYOK 지원)</p>
+
+<!-- BYOK API 입력 -->
+<label>AI API URL:
+  <input id="apiUrl" placeholder="https://api.example.com/v1/generate">
+</label>
+
+<label>AI API Key:
+  <input id="apiKey" placeholder="여기에 API Key 입력">
+</label>
+
+<p>무료 Grok API Key 발급: <a href="https://grok.ai/free-api" target="_blank">여기서 신청</a></p>
 
 <label>
   <input type="checkbox" id="timelineMode">
@@ -72,8 +83,13 @@
 <p id="totalDuration"></p>
 </div>
 
-<textarea id="output" placeholder="여기에 씬 분할 프롬프트가 생성됩니다..."></textarea>
-<button id="copyBtn">복사하기</button>
+<h3>한글 프롬프트</h3>
+<textarea id="outputKR" placeholder="한글 프롬프트 출력"></textarea>
+<button id="copyKR">복사하기</button>
+
+<h3>영문 프롬프트</h3>
+<textarea id="outputEN" placeholder="영문 프롬프트 출력"></textarea>
+<button id="copyEN">복사하기</button>
 
 <div class="ad-slot" id="adBottom">출력 아래 광고 영역</div>
 
