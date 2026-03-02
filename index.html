@@ -7,6 +7,7 @@
 </head>
 <body>
 
+<!-- 필름 그레인 -->
 <div class="grain"></div>
 
 <!-- 광고 상단 -->
@@ -14,14 +15,18 @@
 
 <!-- 등불 애니 -->
 <div class="floating-lights">
-  <img src="./assets/light1.svg" class="light">
-  <img src="./assets/light2.svg" class="light">
-  <img src="./assets/light3.svg" class="light">
+  <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
+  <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
+  <svg class="light" viewBox="0 0 4 10"><ellipse cx="2" cy="5" rx="2" ry="5" fill="orange" opacity="0.5"/></svg>
 </div>
 
-<!-- 저승사자 SVG -->
+<!-- 저승사자 -->
 <div class="grim-wrapper">
-  <img src="./assets/reaper.svg" class="grim" alt="저승사자">
+  <svg class="grim" viewBox="0 0 64 64" width="60" height="60">
+    <circle cx="32" cy="16" r="8" fill="white"/>
+    <rect x="24" y="24" width="16" height="24" fill="white"/>
+    <path d="M40 24 Q50 10 60 24" stroke="white" stroke-width="2" fill="none"/>
+  </svg>
 </div>
 
 <div class="container">
