@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>주마등 : 시네마 v9</title>
+<title>주마등 : 시네마 v10</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -29,13 +29,13 @@
 </div>
 
 <div class="container">
-<h1>주마등 : 시네마 v9</h1>
-<p class="subtitle">6초 인생 자동 타임라인 생성기 (다중 AI 지원)</p>
+<h1>주마등 : 시네마 v10</h1>
+<p class="subtitle">6초 인생 자동 타임라인 생성기 (무료 Groq 지원)</p>
 
 <!-- AI 모델 선택 + API Key -->
 <label>AI 모델 선택:
   <select id="aiModel">
-    <option value="grok">Grok (무료)</option>
+    <option value="groq" selected>Groq (무료)</option> <!-- 기본값 Groq -->
     <option value="openai">OpenAI GPT</option>
     <option value="gemini">Gemini</option>
     <option value="azure">Azure OpenAI</option>
@@ -48,7 +48,7 @@
   <input id="apiKey" placeholder="여기에 API Key 입력">
 </label>
 
-<p>무료 Grok API Key 발급: <a href="https://grok.ai/free-api" target="_blank">여기서 신청</a></p>
+<p>무료 Groq API Key 발급: <a href="https://console.groq.com/keys" target="_blank">여기서 신청</a></p>
 
 <label>
   <input type="checkbox" id="timelineMode">
