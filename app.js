@@ -1,97 +1,46 @@
 document.addEventListener("DOMContentLoaded", function () {
 
 const i18n = {
-  ko: {
-    title: "주마등 : 시네마",
-    subtitle: "6초 인생 자동 타임라인 생성기 (무료 Groq 지원)",
-    diaryLabel: "오늘의 일기",
-    videoStyleLabel: "영상 스타일",
-    characterStyleLabel: "캐릭터 스타일",
-    characterDescLabel: "캐릭터 특징",
-    generateBtn: "프롬프트 생성",
-    outputKRLabel: "한글 프롬프트",
-    outputENLabel: "영문 프롬프트",
-    copyBtn: "복사하기",
-    timelineMode: "🧠 2시간 자동 타임라인 모드",
-    apiKeyPlaceholder: "여기에 API Key 입력",
-    freeGrokLink: "무료 Groq API Key 발급: 여기서 신청",
-    adTop: "상단 광고 영역",
-    adBottom: "출력 아래 광고 영역"
-  },
-  en: {
-    title: "Jumadeung : Cinema",
-    subtitle: "6s Life Timeline Auto Generator (Free Groq Supported)",
-    diaryLabel: "Today's Diary",
-    videoStyleLabel: "Video Style",
-    characterStyleLabel: "Character Style",
-    characterDescLabel: "Character Description",
-    generateBtn: "Generate Prompt",
-    outputKRLabel: "Korean Prompt",
-    outputENLabel: "English Prompt",
-    copyBtn: "Copy",
-    timelineMode: "🧠 2-hour Auto Timeline Mode",
-    apiKeyPlaceholder: "Enter API Key here",
-    freeGrokLink: "Get Free Groq API Key: Apply here",
-    adTop: "Top Ad Slot",
-    adBottom: "Bottom Ad Slot"
-  }
+  ko: { title:"주마등 : 시네마", subtitle:"6초 인생 자동 타임라인 생성기 (무료 Groq 지원)", diaryLabel:"오늘의 일기", videoStyleLabel:"영상 스타일", characterStyleLabel:"캐릭터 스타일", characterDescLabel:"캐릭터 특징", generateBtn:"프롬프트 생성", outputKRLabel:"한글 프롬프트", outputENLabel:"영문 프롬프트", copyBtn:"복사하기", timelineMode:"🧠 2시간 자동 타임라인 모드", apiKeyPlaceholder:"여기에 API Key 입력", freeGrokLink:"무료 Groq API Key 발급: 여기서 신청", adTop:"상단 광고 영역", adBottom:"출력 아래 광고 영역" },
+  en: { title:"Jumadeung : Cinema", subtitle:"6s Life Timeline Auto Generator (Free Groq Supported)", diaryLabel:"Today's Diary", videoStyleLabel:"Video Style", characterStyleLabel:"Character Style", characterDescLabel:"Character Description", generateBtn:"Generate Prompt", outputKRLabel:"Korean Prompt", outputENLabel:"English Prompt", copyBtn:"Copy", timelineMode:"🧠 2-hour Auto Timeline Mode", apiKeyPlaceholder:"Enter API Key here", freeGrokLink:"Get Free Groq API Key: Apply here", adTop:"Top Ad Slot", adBottom:"Bottom Ad Slot" }
 };
 
-const reaperQuotes = [
-"이 장면도 결국 스쳐간다...",
-"6초면 충분하지 않나?",
-"모든 기억은 편집된다.",
-"너의 인생은 지금 렌더링 중이다.",
-"등불이 꺼지기 전, 다시 한번.",
-"카메라는 항상 뒤에서 보고 있다.",
-"이 또한 하나의 씬일 뿐.",
-"흑백이 더 진짜다.",
-"지금 이 순간도 6초다.",
-"엔딩은 이미 정해져 있다."
-];
+const reaperQuotes = ["이 장면도 결국 스쳐간다...","6초면 충분하지 않나?","모든 기억은 편집된다.","너의 인생은 지금 렌더링 중이다.","등불이 꺼지기 전, 다시 한번.","카메라는 항상 뒤에서 보고 있다.","이 또한 하나의 씬일 뿐.","흑백이 더 진짜다.","지금 이 순간도 6초다.","엔딩은 이미 정해져 있다."];
 
-const aiModels = {
-  groq: { url:"https://api.groq.com/openai/v1/chat/completions", type:"completion" }, // 무료 Groq
-  openai: { url:"https://api.openai.com/v1/completions", type:"completion" },
-  gemini: { url:"https://gemini.googleapis.com/v1/completions", type:"completion" },
-  azure: { url:"https://YOUR_AZURE_ENDPOINT.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT_NAME/completions?api-version=2023-03-15-preview", type:"completion" },
-  claude: { url:"https://api.anthropic.com/v1/complete", type:"completion" },
-  hf: { url:"https://api-inference.huggingface.co/models/YOUR_MODEL", type:"text-generation" }
-};
+const aiModels = { groq:{url:"https://api.groq.com/openai/v1/chat/completions",type:"completion"}, openai:{url:"https://api.openai.com/v1/completions",type:"completion"}, gemini:{url:"https://gemini.googleapis.com/v1/completions",type:"completion"}, azure:{url:"https://YOUR_AZURE_ENDPOINT.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT_NAME/completions?api-version=2023-03-15-preview",type:"completion"}, claude:{url:"https://api.anthropic.com/v1/complete",type:"completion"}, hf:{url:"https://api-inference.huggingface.co/models/YOUR_MODEL",type:"text-generation"}};
+
+// null-safe
+function setTextById(id,text){const el=document.getElementById(id);if(el) el.innerText=text;}
 
 // 언어 변경
-const langSelect = document.getElementById("langSelect");
+const langSelect=document.getElementById("langSelect");
 langSelect.addEventListener("change",()=>updateUI(langSelect.value));
 
 function updateUI(lang){
   const texts=i18n[lang];
-  document.querySelector("h1").innerText = texts.title;
-  document.querySelector(".subtitle").innerText = texts.subtitle;
-  document.getElementById("diaryLabel").innerText = texts.diaryLabel;
-  document.getElementById("videoStyleLabel").innerText = texts.videoStyleLabel;
-  document.getElementById("characterStyleLabel").innerText = texts.characterStyleLabel;
-  document.getElementById("characterDescLabel").innerText = texts.characterDescLabel;
-  document.getElementById("generateBtn").innerText = texts.generateBtn;
-  document.getElementById("outputKRLabel").innerText = texts.outputKRLabel;
-  document.getElementById("outputENLabel").innerText = texts.outputENLabel;
-  document.getElementById("copyKR").innerText = texts.copyBtn;
-  document.getElementById("copyEN").innerText = texts.copyBtn;
-  document.getElementById("apiKey").placeholder = texts.apiKeyPlaceholder;
-  document.getElementById("freeGrokLink").innerHTML = `<a href="https://console.groq.com/keys" target="_blank">${texts.freeGrokLink}</a>`;
-  document.getElementById("adTop").innerText = texts.adTop;
-  document.getElementById("adBottom").innerText = texts.adBottom;
-  document.querySelector("label[for=timelineMode]").innerText = texts.timelineMode;
+  setTextById("adTop",texts.adTop);
+  setTextById("adBottom",texts.adBottom);
+  setTextById("diaryLabel",texts.diaryLabel);
+  setTextById("videoStyleLabel",texts.videoStyleLabel);
+  setTextById("characterStyleLabel",texts.characterStyleLabel);
+  setTextById("characterDescLabel",texts.characterDescLabel);
+  setTextById("generateBtn",texts.generateBtn);
+  setTextById("outputKRLabel",texts.outputKRLabel);
+  setTextById("outputENLabel",texts.outputENLabel);
+  setTextById("copyKR",texts.copyBtn);
+  setTextById("copyEN",texts.copyBtn);
+  setTextById("freeGrokLink",document.getElementById("freeGrokLink")?`<a href="https://console.groq.com/keys" target="_blank">${texts.freeGrokLink}</a>`:"");
 }
-
-// 초기 UI
 updateUI("ko");
 
 // 캐릭터 스타일 커스텀 표시
 const characterStyleSelect=document.getElementById("characterStyle");
 const customStyleInput=document.getElementById("customStyle");
-characterStyleSelect.addEventListener("change",function(){
-  customStyleInput.style.display=this.value==="custom"?"block":"none";
-});
+if(characterStyleSelect){
+  characterStyleSelect.addEventListener("change",function(){
+    customStyleInput.style.display=this.value==="custom"?"block":"none";
+  });
+}
 
 // 씬 분할
 function splitIntoScenes(text){
