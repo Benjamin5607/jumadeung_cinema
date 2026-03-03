@@ -23,7 +23,15 @@ document.addEventListener("DOMContentLoaded", () => {
       generateScenesBtn: "2단계 : 씬 분할 및 최종 영문 프롬프트 생성",
       krTitle: "🎬 한글 씬 플랜",
       enTitle: "🌐 최종 영문 프롬프트 (복사해서 AI 영상 툴에 붙여넣기)",
-      copyEN: "최종 영문 프롬프트 복사"
+      copyEN: "최종 영문 프롬프트 복사",
+      reaperQuotes: [
+        "오늘 하루는 후회 없었어?",
+        "시간은 참 빠르지...",
+        "너의 기억을 영상으로 보여줄게.",
+        "주마등은 거짓말을 하지 않지 💀",
+        "일기 쓸 내용이 그것뿐이야?",
+        "날 클릭하면 멘트가 바뀐다구!"
+      ]
     },
     en: {
       mainTitle: "Flashback : Cinema v15",
@@ -47,18 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
       generateScenesBtn: "Step 2: Split Scenes & Generate Final Prompts",
       krTitle: "🎬 Scene Plan (Korean)",
       enTitle: "🌐 Final English Prompts (Copy to AI Video Tool)",
-      copyEN: "Copy Final Prompts"
-      reaperQuotes: [
-        "오늘 하루는 후회 없었어?",
-        "시간은 참 빠르지...",
-        "너의 기억을 영상으로 보여줄게.",
-        "주마등은 거짓말을 하지 않지 💀",
-        "일기 쓸 내용이 그것뿐이야?",
-        "날 클릭하면 멘트가 바뀐다구!"
-      ]
-    },
-    en: {
-      // ...(기존 내용들 그대로 두고 맨 아래에 추가)...
       copyEN: "Copy Final Prompts",
       reaperQuotes: [
         "Any regrets today?",
@@ -93,7 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const lang = e.target.value;
     const t = translations[lang];
     
-    // 텍스트 변환
     document.getElementById("ui_mainTitle").innerText = t.mainTitle;
     document.getElementById("ui_subTitle").innerText = t.subTitle;
     document.getElementById("ui_langLabel").innerText = t.langLabel;
@@ -113,14 +108,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("ui_enTitle").innerText = t.enTitle;
     elements.copyEN.innerText = t.copyEN;
 
-    // Placeholder 변환
     elements.diary.placeholder = t.diaryPlaceholder;
     elements.customStyle.placeholder = t.customStylePlaceholder;
     elements.characterDesc.placeholder = t.charDescPlaceholder;
     elements.fixedPrompt.placeholder = t.fixedPromptPlaceholder;
   });
 
-  // --- 기존 로직 ---
+  // --- 기존 로직 (스타일 커스텀, 모델 로드) ---
   elements.characterStyle.addEventListener("change", () => {
     elements.customStyle.style.display = elements.characterStyle.value === "custom" ? "block" : "none";
   });
@@ -135,7 +129,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("loadModels").addEventListener("click", async () => {
     const key = elements.apiKey.value.trim();
     if (!key) return alert("API Key를 입력해주세요.");
-    elements.aiModel.innerHTML = "<option>불러오는 중...</option>";
+    const lang = elements.langSelect.value;
+    elements.aiModel.innerHTML = lang === "ko" ? "<option>불러오는 중...</option>" : "<option>Loading...</option>";
     
     try {
       const type = detectKeyType(key);
@@ -155,10 +150,11 @@ document.addEventListener("DOMContentLoaded", () => {
       elements.aiModel.innerHTML = models.map(m => `<option value="${m.id}">${m.name}</option>`).join("");
     } catch (e) {
       alert(e.message);
-      elements.aiModel.innerHTML = "<option value=''>실패</option>";
+      elements.aiModel.innerHTML = "<option value=''>실패 / Failed</option>";
     }
   });
 
+  // --- 공용 AI 호출 함수 ---
   async function callAI(systemPrompt, userText) {
     const modelId = elements.aiModel.value;
     const apiKey = elements.apiKey.value.trim();
@@ -188,9 +184,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return type === "gemini" ? data.candidates[0].content.parts[0].text : data.choices[0].message.content;
   }
 
+  // --- 1단계: 캐릭터 및 스타일 프롬프트 추출 ---
   elements.extractBtn.addEventListener("click", async () => {
     if (!elements.diary.value.trim()) return alert("일기를 먼저 작성해주세요!");
-    elements.extractBtn.innerText = "추출 중...";
+    const lang = elements.langSelect.value;
+    elements.extractBtn.innerText = lang === "ko" ? "추출 중..." : "Extracting...";
     
     const styleText = elements.characterStyle.value === "custom" ? elements.customStyle.value : elements.characterStyle.value;
     const sysPrompt = `You are a prompt engineer for AI image generators. 
@@ -207,21 +205,21 @@ Format Example: 1boy, 30 years old, messy hair, wearing a suit, ${elements.video
     } catch (e) {
       alert(e.message);
     } finally {
-      // 언어 설정에 맞게 원래 버튼 이름으로 복구
-      const lang = elements.langSelect.value;
       elements.extractBtn.innerText = translations[lang].extractBtn;
     }
   });
 
+  // --- 2단계: 씬 분할 및 최종 조립 ---
   elements.generateScenesBtn.addEventListener("click", async () => {
     const text = elements.diary.value.trim();
     const fixedBasePrompt = elements.fixedPrompt.value.trim();
     if (!text || !fixedBasePrompt) return alert("1단계를 먼저 완료해주세요!");
 
-    elements.generateScenesBtn.innerText = "최종 씬 생성 중...";
+    const lang = elements.langSelect.value;
+    elements.generateScenesBtn.innerText = lang === "ko" ? "최종 씬 생성 중..." : "Generating Scenes...";
     
     const scenes = text.split(/[.!?\n]/).map(s => s.trim()).filter(s => s.length > 2);
-    document.getElementById("sceneCount").innerText = `총 ${scenes.length}개의 씬이 감지되었습니다.`;
+    document.getElementById("sceneCount").innerText = lang === "ko" ? `총 ${scenes.length}개의 씬이 감지되었습니다.` : `Total ${scenes.length} scenes detected.`;
 
     let krOutput = "", enOutput = "";
     const sysPrompt = `Translate the character's action and background setting into comma-separated English visual tags for an AI video generator. 
@@ -239,16 +237,17 @@ DO NOT describe the character's appearance, ONLY the action, camera, and environ
         enOutput += `[ Scene ${i + 1} ]\nError: ${e.message}\n\n`;
       }
     }
-    
-    // 언어 설정에 맞게 원래 버튼 이름으로 복구
-    const lang = elements.langSelect.value;
     elements.generateScenesBtn.innerText = translations[lang].generateScenesBtn;
   });
 
+  // 복사
   elements.copyEN.addEventListener("click", () => {
-    navigator.clipboard.writeText(elements.outputEN.value).then(() => alert("복사 완료!"));
+    navigator.clipboard.writeText(elements.outputEN.value).then(() => {
+      alert(elements.langSelect.value === "ko" ? "복사 완료!" : "Copied!");
+    });
   });
-// --- 저승사자 랜덤 멘트 기능 ---
+
+  // --- 저승사자 랜덤 멘트 기능 ---
   const reaperBubble = document.getElementById("reaperBubble");
   const reaperImg = document.getElementById("reaperImg");
   let reaperInterval;
@@ -261,20 +260,18 @@ DO NOT describe the character's appearance, ONLY the action, camera, and environ
     reaperBubble.innerText = randomQuote;
     reaperBubble.classList.add("show");
     
-    // 4초 뒤에 말풍선 숨기기
     setTimeout(() => {
       reaperBubble.classList.remove("show");
-    }, 4000);
+    }, 4000); // 4초 후 숨김
   }
 
-  // 12초마다 알아서 멘트 날리기
+  // 12초마다 멘트
   reaperInterval = setInterval(showReaperMessage, 12000);
 
-  // 저승사자를 클릭해도 멘트 나옴 (이스터에그)
+  // 클릭 시 즉시 멘트
   reaperImg.addEventListener("click", () => {
     showReaperMessage();
-    // 타이머 꼬이지 않게 리셋
     clearInterval(reaperInterval);
-    reaperInterval = setInterval(showReaperMessage, 12000);
+    reaperInterval = setInterval(showReaperMessage, 12000); // 타이머 리셋
   });
 });
