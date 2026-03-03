@@ -1,24 +1,131 @@
-body { background: #0a0a0a; color: #eee; font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 20px; }
-.container { max-width: 900px; margin: auto; display: flex; flex-direction: column; gap: 20px; z-index: 2; position: relative; }
-.panel { background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid #333; display: flex; flex-direction: column; gap: 15px; }
-.highlight-panel { border-color: #d4af37; background: #1f1b0f; }
+body {
+  background: #0a0a0a;
+  color: #eee;
+  font-family: 'Malgun Gothic', sans-serif;
+  margin: 0;
+  padding: 20px;
+  overflow-x: hidden; /* 가로 스크롤 완벽 차단 */
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 10;
+  position: relative;
+}
+
+.panel {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.highlight-panel {
+  border-color: #d4af37;
+  background: #1f1b0f;
+}
+
 h1, h3 { margin: 0; }
 .subtitle { color: #888; margin-top: -10px; margin-bottom: 10px; }
 .desc { font-size: 13px; color: #aaa; margin: 0; }
 
-textarea, input, select { width: 100%; background: #111; color: white; border: 1px solid #444; padding: 12px; font-size: 15px; border-radius: 4px; box-sizing: border-box; }
+textarea, input, select {
+  width: 100%;
+  background: #111;
+  color: white;
+  border: 1px solid #444;
+  padding: 12px;
+  font-size: 15px;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
 .output-area { min-height: 200px; font-family: monospace; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-button { padding: 14px; cursor: pointer; font-size: 16px; font-weight: bold; border: none; border-radius: 4px; transition: 0.2s; }
+button {
+  padding: 14px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  transition: 0.2s;
+}
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 .primary-btn { background: #eee; color: #111; }
 .primary-btn:hover { background: #ccc; }
 .success-btn { background: #d4af37; color: #000; }
 .success-btn:hover { background: #b5952f; }
 
-/* Effects */
-.grain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 2px); }
-.grim-wrapper { position: fixed; bottom: 20px; right: 20px; opacity: 0.15; animation: float 3s ease-in-out infinite; pointer-events: none; z-index: 1; }
-.grim { width: 60px; height: 60px; }
-@keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+/* Effects - 필름 그레인 */
+.grain {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999; /* 화면 최상단 */
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 2px);
+}
+
+/* Effects - 등불 (스크롤 유발 버그 수정됨) */
+.floating-lights {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.light {
+  position: absolute;
+  bottom: -50px;
+  width: 8px !important;
+  height: 20px !important;
+  animation: lightFloat 6s linear infinite;
+}
+
+.light:nth-child(1) { left: 20%; animation-duration: 5s; animation-delay: 0s; }
+.light:nth-child(2) { left: 50%; animation-duration: 7s; animation-delay: 2s; }
+.light:nth-child(3) { left: 80%; animation-duration: 6s; animation-delay: 1s; }
+
+@keyframes lightFloat {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.6; }
+  100% { transform: translateY(-100vh); opacity: 0; }
+}
+
+/* Effects - 저승사자 (가출 복귀 완료) */
+.grim-wrapper {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  opacity: 0.4; /* 투명도를 0.15에서 0.4로 올려서 잘 보이게 함 */
+  animation: float 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 9998; /* 컨테이너(10)보다 훨씬 높게 설정해서 묻히지 않음 */
+}
+.grim { width: 80px; height: 80px; } /* 크기도 살짝 키웠습니다 */
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* 모바일 최적화 */
+@media screen and (max-width: 600px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .container { padding: 10px; }
+  button, input, select, textarea { font-size: 14px; }
+  .grim { width: 50px; height: 50px; }
+}
