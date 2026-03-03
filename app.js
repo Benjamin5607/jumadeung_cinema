@@ -17,12 +17,12 @@ document.addEventListener("DOMContentLoaded", () => {
       charDescLabel: "캐릭터 특징 요약 (선택):",
       charDescPlaceholder: "예: 30대 남자, 피곤한 표정, 뿔테 안경",
       extractBtn: "1단계 : 캐릭터 및 스타일 프롬프트 추출",
-      fixedTitle: "🧬 고정 캐릭터 프롬프트 (수정 가능)",
-      fixedDesc: "AI가 일기를 바탕으로 추출한 메인 프롬프트입니다. 자유롭게 태그를 추가/수정하세요.",
+      fixedTitle: "🧬 고정 캐릭터 프롬프트 (위스크 오브젝트용)",
+      fixedDesc: "AI가 분석한 캐릭터의 고유 외형입니다. 위스크의 'Object' 설정에 활용하세요.",
       fixedPromptPlaceholder: "1단계를 실행하면 여기에 고정 프롬프트가 생성됩니다.",
       generateScenesBtn: "2단계 : 씬 분할 및 최종 영문 프롬프트 생성",
       krTitle: "🎬 한글 씬 플랜",
-      enTitle: "🌐 최종 영문 프롬프트 (복사해서 AI 영상 툴에 붙여넣기)",
+      enTitle: "🌐 최종 영문 프롬프트 (Wisk 씬 입력용)",
       copyEN: "최종 영문 프롬프트 복사",
       reaperQuotes: [
         "오늘 하루는 후회 없었어?",
@@ -48,13 +48,13 @@ document.addEventListener("DOMContentLoaded", () => {
       customStylePlaceholder: "Enter custom style",
       charDescLabel: "Character Summary (Optional):",
       charDescPlaceholder: "e.g., 30s man, tired expression, glasses",
-      extractBtn: "Step 1: Extract Character & Style Prompt",
-      fixedTitle: "🧬 Fixed Character Prompt (Editable)",
-      fixedDesc: "Main prompt extracted by AI. Feel free to add/edit tags.",
+      extractBtn: "Step 1: Extract Character for Wisk Object",
+      fixedTitle: "🧬 Fixed Character Prompt (Wisk Object)",
+      fixedDesc: "AI-extracted character traits. Use this for Wisk's 'Character Object' settings.",
       fixedPromptPlaceholder: "The fixed prompt will appear here after Step 1.",
-      generateScenesBtn: "Step 2: Split Scenes & Generate Final Prompts",
+      generateScenesBtn: "Step 2: Split Scenes & Generate Action Prompts",
       krTitle: "🎬 Scene Plan (Korean)",
-      enTitle: "🌐 Final English Prompts (Copy to AI Video Tool)",
+      enTitle: "🌐 Final English Prompts (For Wisk Scenes)",
       copyEN: "Copy Final Prompts",
       reaperQuotes: [
         "Any regrets today?",
@@ -154,8 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- AI 호출 ---
-  async function callAI(systemPrompt, userText, temperature = 0.3) {
+  // --- AI 호출 (Strict 모드: temperature 0.2) ---
+  async function callAI(systemPrompt, userText, temperature = 0.2) {
     const modelId = elements.aiModel.value;
     const apiKey = elements.apiKey.value.trim();
     if (!apiKey || !modelId) throw new Error("API 키와 모델을 확인하세요.");
@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (type === "gemini") {
       url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
       payload = { 
-        contents: [{ parts: [{ text: `${systemPrompt}\n\nUser: ${userText}` }] }],
+        contents: [{ parts: [{ text: `${systemPrompt}\n\nUser Context: ${userText}` }] }],
         generationConfig: { temperature: temperature }
       };
     }
@@ -187,31 +187,32 @@ document.addEventListener("DOMContentLoaded", () => {
     return type === "gemini" ? data.candidates[0].content.parts[0].text : data.choices[0].message.content;
   }
 
-  // --- 🔥 1단계: 초정밀 캐릭터 & 스타일 프롬프트 추출 ---
+  // --- 🔥 1단계: 위스크(Wisk) 캐릭터 오브젝트 추출 ---
   elements.extractBtn.addEventListener("click", async () => {
     if (!elements.diary.value.trim()) return alert("일기를 먼저 작성해주세요!");
     const lang = elements.langSelect.value;
-    elements.extractBtn.innerText = lang === "ko" ? "캐릭터 상세 분석 중..." : "Extracting Details...";
+    elements.extractBtn.innerText = lang === "ko" ? "위스크용 캐릭터 분석 중..." : "Extracting Character Object...";
     
     const styleText = elements.characterStyle.value === "custom" ? elements.customStyle.value : elements.characterStyle.value;
     const selectedVideoStyle = elements.videoStyle.value;
     
-    // 강제 주입: 선택된 스타일을 무조건 프롬프트에 포함하도록 명시
-    const sysPrompt = `You are a strict prompt engineer. Extract the physical descriptions of ALL characters from the text. 
-CRITICAL INSTRUCTIONS:
-1. Describe EVERY character mentioned (e.g., [Character 1], [Character 2]).
-2. For each, include: Age, gender, nationality/ethnicity, exact hairstyle/color, eye shape/color, facial expression, body type, and specific clothing items. 
-3. DO NOT hallucinate actions or storylines.
-4. YOU MUST append these exact style keywords to the very end of your output: "${selectedVideoStyle}, ${styleText}".
-5. Output format must be a single comma-separated list of keywords.
+    const sysPrompt = `You are a professional prompt engineer for AI video generation. 
+Your task is to extract a highly detailed, consistent visual profile for EACH character to be used as a "Fixed Object" in Wisk or Midjourney.
 
-Example format:
-[Character 1] 30s korean man, short black hair, wearing glasses, tired expression, wearing a white shirt, [Character 2] 20s woman, long brown hair, smiling, wearing a blue dress, [Style] ${selectedVideoStyle}, ${styleText}`;
+STRICT RULES:
+1. Describe every character separately: [Character Name].
+2. Focus ONLY on physical appearance: (Age, Gender, Ethnicity, Detailed facial features, Exact hair style/color, Body type, and specific Outfit/Clothing).
+3. DO NOT include any background, action, or camera movements here.
+4. YOU MUST append the following style keywords at the end: "${selectedVideoStyle}, ${styleText}".
+5. Output format: A comma-separated list of keywords. NO conversations.
+
+Example:
+[Character 1: Moon] 30s man, black sharp short hair, oval face, focused eyes, slim build, wearing a black silk button-down shirt, ${selectedVideoStyle}, ${styleText}`;
     
-    const userPrompt = `Input Text: ${elements.diary.value}\nUser's Character Hints: ${elements.characterDesc.value}`;
+    const userPrompt = `Diary: ${elements.diary.value}\nExtra Hints: ${elements.characterDesc.value}`;
 
     try {
-      const result = await callAI(sysPrompt, userPrompt, 0.2); // Temperature 낮춤
+      const result = await callAI(sysPrompt, userPrompt, 0.2); 
       elements.fixedPrompt.value = result.trim();
       elements.generateScenesBtn.disabled = false;
     } catch (e) {
@@ -221,62 +222,59 @@ Example format:
     }
   });
 
-  // --- 🔥 2단계 & 3단계: 디테일한 한글 씬 기획 및 영문 프롬프트 변환 ---
+  // --- 🔥 2단계: 스토리 변형 없는 씬 플랜 및 액션 프롬프트 생성 ---
   elements.generateScenesBtn.addEventListener("click", async () => {
     const text = elements.diary.value.trim();
     const fixedBasePrompt = elements.fixedPrompt.value.trim();
     if (!text || !fixedBasePrompt) return alert("1단계를 먼저 완료해주세요!");
 
     const lang = elements.langSelect.value;
-    elements.generateScenesBtn.innerText = lang === "ko" ? "씬 기획 및 영상 프롬프트 생성 중..." : "Generating Scenes...";
+    elements.generateScenesBtn.innerText = lang === "ko" ? "씬 생성 중..." : "Generating Scenes...";
     
-    // 문장 분할 (정규식 개선으로 더 깔끔하게 분할)
-    const rawScenes = text.match(/[^.!?]+[.!?]+/g) || [text];
-    const scenes = rawScenes.map(s => s.trim()).filter(s => s.length > 5);
-    
-    document.getElementById("sceneCount").innerText = lang === "ko" ? `총 ${scenes.length}개의 씬이 기획됩니다.` : `Total ${scenes.length} scenes planned.`;
+    // 정규식으로 문장 단위로 깔끔하게 쪼개기
+    const scenes = text.match(/[^.!?\n]+[.!?\n]+/g) || [text];
+    document.getElementById("sceneCount").innerText = lang === "ko" ? `총 ${scenes.length}개의 씬이 감지되었습니다.` : `Total ${scenes.length} scenes detected.`;
 
     let krOutput = "", enOutput = "";
 
-    // 스토리라인 변형 방지 및 상세 묘사 강제
-    const sysPrompt = `You are an AI video prompt generator. Analyze the specific scene context provided.
-CRITICAL INSTRUCTIONS:
-1. DO NOT change the core storyline or hallucinate new events. Translate the action EXACTLY as written in the context.
-2. Provide a detailed Korean scene plan.
-3. Provide a highly descriptive English prompt containing ONLY comma-separated keywords for the environment, lighting, camera angle, and the exact action. DO NOT include character descriptions in the English prompt.
+    const sysPrompt = `You are an AI video director. Translate the provided scene text into a cinematic plan.
+STRICT RULES:
+1. DO NOT change the story or add events that aren't in the input text. Stay 100% faithful to the diary.
+2. Character looks are ALREADY FIXED. Focus ONLY on describing the background, lighting, camera angle, and the specific movement/action.
+3. Output a detailed Korean scene plan.
+4. Output a highly descriptive English prompt (comma-separated tags).
 
 Output exactly in this format:
 [한국어 씬 플랜]
-- 장소 및 풍경: (Detail the background/setting)
-- 분위기 및 조명: (Lighting, weather, mood)
-- 행동 및 특징: (Exact translation of the provided context, without altering the story)
+- 장소 및 배경: (상세 묘사)
+- 분위기 및 조명: (시각적 톤)
+- 행동 특징: (원문 그대로의 행동 묘사)
 
 [English AI Prompt]
-(Comma-separated keywords detailing the setting, lighting, camera, and the specific action taking place, e.g., wide shot, modern living room, dim lighting, person typing on laptop while another person points and laughs)`;
+(Environment keywords, lighting, camera lens, and the specific action taking place, e.g., low angle shot, cozy living room, warm orange lamp light, character laughing while pointing at a laptop screen)`;
 
     for (let i = 0; i < scenes.length; i++) {
       try {
-        const aiResponse = await callAI(sysPrompt, `Scene context: ${scenes[i]}`, 0.2); // Temperature 낮춰서 환각 방지
+        const aiResponse = await callAI(sysPrompt, `Scene Content: ${scenes[i].trim()}`, 0.2); 
         
         const parts = aiResponse.split("[English AI Prompt]");
         const krPlan = parts[0].replace("[한국어 씬 플랜]", "").trim();
-        const enAction = parts[1] ? parts[1].trim() : "Failed to generate action tags.";
+        const enAction = parts[1] ? parts[1].trim() : "Action tags generation failed.";
 
-        krOutput += `[ Scene ${i + 1} - 원문: ${scenes[i]} ]\n${krPlan}\n--------------------\n`;
+        krOutput += `[ Scene ${i + 1} - 원문: ${scenes[i].trim()} ]\n${krPlan}\n--------------------\n`;
         elements.outputKR.value = krOutput;
 
-        // 최종 조립: [고정 캐릭터/스타일] + [해당 씬의 장소/행동]
         enOutput += `[ Scene ${i + 1} ]\n${fixedBasePrompt}, ${enAction.replace(/\n/g, ' ')}\n--------------------\n`;
         elements.outputEN.value = enOutput;
       } catch (e) {
-        krOutput += `[ Scene ${i + 1} ]\n오류 발생: ${e.message}\n\n`;
+        krOutput += `[ Scene ${i + 1} ]\nError: ${e.message}\n\n`;
         enOutput += `[ Scene ${i + 1} ]\nError: ${e.message}\n\n`;
       }
     }
     elements.generateScenesBtn.innerText = translations[lang].generateScenesBtn;
   });
 
-  // 복사
+  // 복사 기능
   elements.copyEN.addEventListener("click", () => {
     navigator.clipboard.writeText(elements.outputEN.value).then(() => {
       alert(elements.langSelect.value === "ko" ? "복사 완료!" : "Copied!");
