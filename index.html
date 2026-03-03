@@ -16,62 +16,62 @@
   </div>
 
   <div class="grim-wrapper">
-    <img src="assets/grim_reaper.png" alt="Grim Reaper" class="grim"/>
+    <img src="assets/reaper.svg" alt="Grim Reaper" class="grim"/>
   </div>
 
   <div class="container">
-    <h1>주마등 : 시네마 v15</h1>
-    <p class="subtitle">AI 프롬프트 체이닝 기반 씬 생성기</p>
+    <h1 id="ui_mainTitle">주마등 : 시네마 v15</h1>
+    <p id="ui_subTitle" class="subtitle">AI 프롬프트 체이닝 기반 씬 생성기</p>
 
     <div class="panel">
-      <label>Language:
+      <label><span id="ui_langLabel">Language:</span>
         <select id="langSelect">
           <option value="ko">한국어</option>
           <option value="en">English</option>
         </select>
       </label>
 
-      <label>AI API Key:
+      <label><span id="ui_apiLabel">AI API Key:</span>
         <input id="apiKey" placeholder="Groq (gsk_) / OpenAI (sk-) / Gemini (AIza-)">
       </label>
       
       <div class="api-help-wrapper">
-        <a href="https://console.groq.com/keys" target="_blank" class="api-help-link">
+        <a href="https://console.groq.com/keys" target="_blank" class="api-help-link" id="ui_apiHelp">
           👉 API 키가 없으신가요? (1분 만에 무료 Groq 키 발급받기)
         </a>
       </div>
 
       <button id="loadModels">모델 리스트 불러오기</button>
       
-      <label>AI 모델 선택:
+      <label><span id="ui_modelLabel">AI 모델 선택:</span>
         <select id="aiModel"><option value="">모델 불러오기 필요</option></select>
       </label>
     </div>
 
     <div class="panel">
-      <h3>📚 Base 설정 (일기 및 스타일)</h3>
+      <h3 id="ui_baseTitle">📚 Base 설정 (일기 및 스타일)</h3>
       <textarea id="diary" placeholder="오늘의 일기를 적어주세요..."></textarea>
       
       <div class="grid-2">
-        <label>영상 스타일:
+        <label><span id="ui_styleLabel">영상 스타일:</span>
           <select id="videoStyle">
             <option>Cinematic, 8k, highly detailed</option>
             <option>Dreamy, volumetric fog, soft focus</option>
             <option>Dark noir, high contrast, black and white</option>
           </select>
         </label>
-        <label>캐릭터 비주얼:
+        <label><span id="ui_charStyleLabel">캐릭터 비주얼:</span>
           <select id="characterStyle">
             <option value="Pixar 3D Animation style">Pixar 3D Animation</option>
             <option value="Studio Ghibli anime style">Studio Ghibli Style</option>
             <option value="Realistic Cinematic Film">Realistic Cinematic</option>
-            <option value="custom">직접 입력</option>
+            <option value="custom">직접 입력 (Custom)</option>
           </select>
         </label>
       </div>
       <input id="customStyle" placeholder="스타일 직접 입력" style="display:none; margin-top: 10px;">
       
-      <label>캐릭터 특징 요약 (선택):
+      <label><span id="ui_charDescLabel">캐릭터 특징 요약 (선택):</span>
         <input id="characterDesc" placeholder="예: 30대 남자, 피곤한 표정, 뿔테 안경">
       </label>
 
@@ -79,8 +79,8 @@
     </div>
 
     <div class="panel highlight-panel">
-      <h3>🧬 고정 캐릭터 프롬프트 (수정 가능)</h3>
-      <p class="desc">AI가 일기를 바탕으로 추출한 메인 프롬프트입니다. 자유롭게 태그를 추가/수정하세요.</p>
+      <h3 id="ui_fixedTitle">🧬 고정 캐릭터 프롬프트 (수정 가능)</h3>
+      <p id="ui_fixedDesc" class="desc">AI가 일기를 바탕으로 추출한 메인 프롬프트입니다. 자유롭게 태그를 추가/수정하세요.</p>
       <textarea id="fixedCharacterPrompt" placeholder="1단계를 실행하면 여기에 고정 프롬프트가 생성됩니다."></textarea>
       
       <button id="generateScenesBtn" class="success-btn" disabled>2단계 : 씬 분할 및 최종 영문 프롬프트 생성</button>
@@ -90,10 +90,10 @@
       <p id="sceneCount"></p>
     </div>
 
-    <h3>🎬 한글 씬 플랜</h3>
+    <h3 id="ui_krTitle">🎬 한글 씬 플랜</h3>
     <textarea id="outputKR" class="output-area"></textarea>
 
-    <h3>🌐 최종 영문 프롬프트 (복사해서 AI 영상 툴에 붙여넣기)</h3>
+    <h3 id="ui_enTitle">🌐 최종 영문 프롬프트 (복사해서 AI 영상 툴에 붙여넣기)</h3>
     <textarea id="outputEN" class="output-area"></textarea>
     <button id="copyEN">최종 영문 프롬프트 복사</button>
   </div>
