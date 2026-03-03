@@ -106,17 +106,42 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   100% { transform: translateY(-100vh); opacity: 0; }
 }
 
-/* Effects - 저승사자 (가출 복귀 완료) */
+/* Effects - 저승사자 (투명도 0.9로 대폭 상향!) */
 .grim-wrapper {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  opacity: 0.4; /* 투명도를 0.15에서 0.4로 올려서 잘 보이게 함 */
+  opacity: 0.9; /* 0.4에서 0.9로 올려서 아주 선명하게 보입니다 */
   animation: float 3s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 9998; /* 컨테이너(10)보다 훨씬 높게 설정해서 묻히지 않음 */
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.grim { width: 80px; height: 80px; } /* 크기도 살짝 키웠습니다 */
+.grim { width: 80px; height: 80px; cursor: pointer; }
+
+/* 저승사자 말풍선 */
+.reaper-bubble {
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #555;
+  font-size: 13px;
+  margin-bottom: 15px;
+  opacity: 0; /* 평소엔 숨김 */
+  transition: opacity 0.4s ease-in-out;
+  pointer-events: none; /* 클릭 방해 금지 */
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  font-family: 'Malgun Gothic', sans-serif;
+}
+
+/* 말풍선이 나타날 때 쓰는 클래스 */
+.reaper-bubble.show {
+  opacity: 1;
+}
 
 @keyframes float {
   0% { transform: translateY(0px); }
