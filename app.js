@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     copyEN: document.getElementById("copyEN")
   };
 
-  // --- 💡 핵심: 언어 변환 실행 함수 (안전하게 ID 체크 후 변경) ---
+  // --- 언어 변환 실행 함수 ---
   function updateUI(lang) {
     const t = translations[lang];
     if (!t) return;
@@ -111,13 +111,11 @@ document.addEventListener("DOMContentLoaded", () => {
       "ui_enTitle": t.enTitle
     };
 
-    // 텍스트 업데이트
     for (const [id, value] of Object.entries(uiMap)) {
       const el = document.getElementById(id);
       if (el) el.innerText = value;
     }
 
-    // 버튼 및 플레이스홀더 업데이트
     if (elements.extractBtn) elements.extractBtn.innerText = t.extractBtn;
     if (elements.generateScenesBtn) elements.generateScenesBtn.innerText = t.generateScenesBtn;
     if (elements.copyEN) elements.copyEN.innerText = t.copyEN;
@@ -128,15 +126,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (elements.fixedPrompt) elements.fixedPrompt.placeholder = t.fixedPromptPlaceholder;
   }
 
-  // 언어 선택 이벤트
-  elements.langSelect.addEventListener("change", (e) => {
-    updateUI(e.target.value);
-  });
-
-  // 초기 실행
+  elements.langSelect.addEventListener("change", (e) => updateUI(e.target.value));
   updateUI("ko");
 
-  // --- UI 설정 (커스텀 스타일 토글) ---
   elements.characterStyle.addEventListener("change", () => {
     elements.customStyle.style.display = elements.characterStyle.value === "custom" ? "block" : "none";
   });
@@ -148,7 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return "unknown";
   }
 
-  // 모델 불러오기
   document.getElementById("loadModels").addEventListener("click", async () => {
     const key = elements.apiKey.value.trim();
     if (!key) return alert("API Key를 입력해주세요.");
@@ -177,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 공용 AI 호출 함수
   async function callAI(systemPrompt, userText, temperature = 0.2) {
     const modelId = elements.aiModel.value;
     const apiKey = elements.apiKey.value.trim();
@@ -200,22 +190,32 @@ document.addEventListener("DOMContentLoaded", () => {
     return type === "gemini" ? data.candidates[0].content.parts[0].text : data.choices[0].message.content;
   }
 
-  // --- 🔥 1단계: 캐릭터별 오브젝트 분할 추출 ---
+  // --- 🔥 1단계: 초정밀 캐릭터 오브젝트 추출 (디테일 극대화) ---
   elements.extractBtn.addEventListener("click", async () => {
     if (!elements.diary.value.trim()) return alert("일기를 먼저 작성해주세요!");
     const lang = elements.langSelect.value;
-    elements.extractBtn.innerText = lang === "ko" ? "캐릭터 분석 중..." : "Analyzing...";
+    elements.extractBtn.innerText = lang === "ko" ? "캐릭터 심층 분석 중..." : "Deep Analyzing Characters...";
     
     const styleText = elements.characterStyle.value === "custom" ? elements.customStyle.value : elements.characterStyle.value;
+    const selectedVideoStyle = elements.videoStyle.value;
     
-    const sysPrompt = `You are a character design expert. Extract each character's visual appearance into SEPARATE blocks for Wisk.ai.
-RULES:
-1. Divide characters clearly using headers like ### [Character Name].
-2. For each, provide ONLY physical traits: Age, Ethnicity, Hair, Face, Body, and Outfit.
-3. Append this overall style at the end of each block: "${elements.videoStyle.value}, ${styleText}".
-4. DO NOT include background or action.`;
+    const sysPrompt = `You are a Master Character Designer for AI video generation.
+CRITICAL RULES:
+1. Identify EVERY SINGLE character mentioned in the text. If the user mentions 2 characters, you MUST create 2 character blocks. Do not omit anyone.
+2. Create a SEPARATE block for each character starting exactly with "### [Character Name]".
+3. EXTREME DETAIL: Expand the user's hints into highly detailed visual tags. For each character, you MUST include: exact age, gender, ethnicity, detailed facial features (eyes, nose, jawline), exact hairstyle and color, body type, and highly specific clothing/outfit details. DO NOT just translate; expand vividly.
+4. STYLE ENFORCEMENT: You MUST append the following style exactly at the end of EACH character block: "${selectedVideoStyle}, ${styleText}".
+5. ONLY describe physical appearance. DO NOT include background or action.
+6. Output format: Comma-separated tags only.
+
+Example:
+### [Moon]
+30s Korean man, sharp jawline, short messy black hair, tired monolid eyes, slim build, wearing a wrinkled oversized grey hoodie and black glasses, ${selectedVideoStyle}, ${styleText}
+
+### [Me]
+20s Korean woman, round soft face, long wavy brown hair, bright big eyes, petite figure, wearing a neat white knitted sweater and blue jeans, ${selectedVideoStyle}, ${styleText}`;
     
-    const userPrompt = `Diary: ${elements.diary.value}\nHints: ${elements.characterDesc.value}`;
+    const userPrompt = `Diary: ${elements.diary.value}\nCharacter Hints: ${elements.characterDesc.value}`;
 
     try {
       const result = await callAI(sysPrompt, userPrompt, 0.2);
@@ -228,44 +228,49 @@ RULES:
     }
   });
 
-  // --- 🔥 2단계: 이미지(배경+액션) vs 영상(풀버전) 분리 생성 ---
+  // --- 🔥 2단계: 이미지/영상 프롬프트 분리 생성 (환각 방지 + 캐릭터 조립) ---
   elements.generateScenesBtn.addEventListener("click", async () => {
     const text = elements.diary.value.trim();
     const fixedBase = elements.fixedPrompt.value.trim();
     if (!text || !fixedBase) return alert("1단계를 완료하세요!");
 
     const lang = elements.langSelect.value;
-    elements.generateScenesBtn.innerText = lang === "ko" ? "프롬프트 생성 중..." : "Generating...";
+    elements.generateScenesBtn.innerText = lang === "ko" ? "시네마틱 프롬프트 생성 중..." : "Generating Cinematic Prompts...";
     
     const rawScenes = text.match(/[^.!?\n]+[.!?\n]+/g) || [text];
     const scenes = rawScenes.map(s => s.trim()).filter(s => s.length > 5);
     
     let kr = "", imgEn = "", vidEn = "";
 
-    const sysPrompt = `You are an AI video director. For the given context:
-1. DO NOT change the story. Stay 100% faithful.
-2. [KR] Provide a detailed Korean scene plan.
-3. [IMG] Provide an English prompt for Wisk: ONLY environment, lighting, and action. NO character descriptions.
-4. [VID] Provide a Full English Prompt: Character description + [IMG].
+    const sysPrompt = `You are an elite Cinematic Director and AI prompt engineer.
+CRITICAL RULES:
+1. NO HALLUCINATIONS: Do not change the core story. Translate the action EXACTLY as written by the user.
+2. [KR] Write a detailed Korean scene plan (장소, 배경, 조명, 행동 특징).
+3. [IMG] Write an English prompt for Wisk (comma-separated tags). Focus ONLY on the cinematic environment, lighting, camera angle, and exact action. EXCLUDE all character physical descriptions (no face, hair, or clothes).
+4. [VID] Write a Full English Video Prompt. Combine the exact character traits from the 'Fixed Characters' section with the environment and action. Make it highly descriptive (comma-separated tags).
 
-Format:
-[KR] (Plan)
-[IMG] (Keywords)
-[VID] (Full Prompt)`;
+Output EXACTLY in this format:
+[KR]
+(Korean plan)
+[IMG]
+(Action and Environment Keywords Only)
+[VID]
+(Full Cinematic Prompt including Character traits and Environment)`;
 
     for (let i = 0; i < scenes.length; i++) {
       try {
-        const aiRes = await callAI(sysPrompt, `Scene: ${scenes[i]}`, 0.2);
+        // AI에게 1단계에서 뽑은 캐릭터 설정(fixedBase)을 같이 넘겨줘서 VID 프롬프트를 완벽하게 조립하게 만듬
+        const userPrompt = `Fixed Characters:\n${fixedBase}\n\nScene Context: ${scenes[i]}`;
+        const aiRes = await callAI(sysPrompt, userPrompt, 0.2);
         
-        const parts = {
-          kr: aiRes.split("[IMG]")[0].replace("[KR]", "").trim(),
-          img: aiRes.split("[IMG]")[1]?.split("[VID]")[0].trim() || "",
-          vid: aiRes.split("[VID]")[1]?.trim() || ""
-        };
+        // 정교한 파싱
+        const krPart = aiRes.split("[IMG]")[0].replace("[KR]", "").trim();
+        const imgPart = aiRes.includes("[IMG]") && aiRes.includes("[VID]") ? aiRes.split("[IMG]")[1].split("[VID]")[0].trim() : "Error generating IMG tags.";
+        const vidPart = aiRes.includes("[VID]") ? aiRes.split("[VID]")[1].trim() : "Error generating VID tags.";
 
-        kr += `[ Scene ${i + 1} - 원문: ${scenes[i]} ]\n${parts.kr}\n--------------------\n`;
-        imgEn += `[ Scene ${i + 1} Image ]\n${parts.img}\n--------------------\n`;
-        vidEn += `[ Scene ${i + 1} Video ]\n${fixedBase.split('\n')[1] || fixedBase}, ${parts.vid}\n--------------------\n`;
+        kr += `[ Scene ${i + 1} - 원문: ${scenes[i]} ]\n${krPart}\n--------------------\n`;
+        imgEn += `[ Scene ${i + 1} Image ]\n${imgPart}\n--------------------\n`;
+        vidEn += `[ Scene ${i + 1} Video ]\n${vidPart}\n--------------------\n`;
 
         elements.outputKR.value = kr;
         elements.outputImageEN.value = imgEn;
@@ -275,7 +280,7 @@ Format:
     elements.generateScenesBtn.innerText = translations[lang].generateScenesBtn;
   });
 
-  // 복사
+  // 복사 기능
   elements.copyEN.addEventListener("click", () => {
     navigator.clipboard.writeText(elements.outputEN.value).then(() => {
       alert(elements.langSelect.value === "ko" ? "복사 완료!" : "Copied!");
