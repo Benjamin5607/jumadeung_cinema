@@ -154,8 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- AI 호출 (창의성을 살리기 위해 temperature 소폭 상승) ---
-  async function callAI(systemPrompt, userText, temperature = 0.5) {
+  // --- AI 호출 ---
+  async function callAI(systemPrompt, userText, temperature = 0.3) {
     const modelId = elements.aiModel.value;
     const apiKey = elements.apiKey.value.trim();
     if (!apiKey || !modelId) throw new Error("API 키와 모델을 확인하세요.");
@@ -194,24 +194,24 @@ document.addEventListener("DOMContentLoaded", () => {
     elements.extractBtn.innerText = lang === "ko" ? "캐릭터 상세 분석 중..." : "Extracting Details...";
     
     const styleText = elements.characterStyle.value === "custom" ? elements.customStyle.value : elements.characterStyle.value;
+    const selectedVideoStyle = elements.videoStyle.value;
     
-    // 지시문 대폭 강화: 다수의 캐릭터와 디테일한 묘사 강제
-    const sysPrompt = `You are a master AI prompt engineer for video generation (like Midjourney, SVD). 
-Your task is to analyze the user's diary and inputs, and create a highly detailed, comma-separated list of visual tags representing ALL CHARACTERS mentioned and the OVERALL STYLE.
+    // 강제 주입: 선택된 스타일을 무조건 프롬프트에 포함하도록 명시
+    const sysPrompt = `You are a strict prompt engineer. Extract the physical descriptions of ALL characters from the text. 
+CRITICAL INSTRUCTIONS:
+1. Describe EVERY character mentioned (e.g., [Character 1], [Character 2]).
+2. For each, include: Age, gender, nationality/ethnicity, exact hairstyle/color, eye shape/color, facial expression, body type, and specific clothing items. 
+3. DO NOT hallucinate actions or storylines.
+4. YOU MUST append these exact style keywords to the very end of your output: "${selectedVideoStyle}, ${styleText}".
+5. Output format must be a single comma-separated list of keywords.
 
-CRITICAL RULES:
-1. Identify every distinct character.
-2. For each character, detail their: age, gender, ethnicity, detailed facial features (eyes, jawline, expression), hairstyle and hair color, body type, and highly specific clothing/outfit details.
-3. Incorporate the requested visual style tags at the end.
-4. Output ONLY the comma-separated English tags. NO conversational text.
-
-Output Format Example:
-[Character 1] 1boy, 30s korean man, tired expression, dark circles under eyes, sharp jawline, short messy black hair, slim body, wearing a wrinkled white t-shirt and grey sweatpants, [Character 2] 1girl, 20s woman, bright smile, long wavy brown hair, wearing a red knitted sweater, [Style] ${elements.videoStyle.value}, ${styleText}`;
+Example format:
+[Character 1] 30s korean man, short black hair, wearing glasses, tired expression, wearing a white shirt, [Character 2] 20s woman, long brown hair, smiling, wearing a blue dress, [Style] ${selectedVideoStyle}, ${styleText}`;
     
-    const userPrompt = `Diary: ${elements.diary.value}\nCharacter Hints: ${elements.characterDesc.value}`;
+    const userPrompt = `Input Text: ${elements.diary.value}\nUser's Character Hints: ${elements.characterDesc.value}`;
 
     try {
-      const result = await callAI(sysPrompt, userPrompt, 0.4);
+      const result = await callAI(sysPrompt, userPrompt, 0.2); // Temperature 낮춤
       elements.fixedPrompt.value = result.trim();
       elements.generateScenesBtn.disabled = false;
     } catch (e) {
@@ -230,36 +230,42 @@ Output Format Example:
     const lang = elements.langSelect.value;
     elements.generateScenesBtn.innerText = lang === "ko" ? "씬 기획 및 영상 프롬프트 생성 중..." : "Generating Scenes...";
     
-    // 단순 문장 쪼개기가 아닌, 문맥을 어느정도 유지하며 씬을 분할
-    const rawScenes = text.split(/[.!?\n]/).map(s => s.trim()).filter(s => s.length > 5);
-    document.getElementById("sceneCount").innerText = lang === "ko" ? `총 ${rawScenes.length}개의 씬이 기획됩니다.` : `Total ${rawScenes.length} scenes planned.`;
+    // 문장 분할 (정규식 개선으로 더 깔끔하게 분할)
+    const rawScenes = text.match(/[^.!?]+[.!?]+/g) || [text];
+    const scenes = rawScenes.map(s => s.trim()).filter(s => s.length > 5);
+    
+    document.getElementById("sceneCount").innerText = lang === "ko" ? `총 ${scenes.length}개의 씬이 기획됩니다.` : `Total ${scenes.length} scenes planned.`;
 
     let krOutput = "", enOutput = "";
 
-    // 씬 기획용 시스템 프롬프트 (한글 기획 + 영문 번역을 한 번에 요청하여 API 호출 횟수 최적화)
-    const sysPrompt = `You are an expert film director and AI video prompt engineer. 
-I will give you a short scene description. You must output EXACTLY in this format:
+    // 스토리라인 변형 방지 및 상세 묘사 강제
+    const sysPrompt = `You are an AI video prompt generator. Analyze the specific scene context provided.
+CRITICAL INSTRUCTIONS:
+1. DO NOT change the core storyline or hallucinate new events. Translate the action EXACTLY as written in the context.
+2. Provide a detailed Korean scene plan.
+3. Provide a highly descriptive English prompt containing ONLY comma-separated keywords for the environment, lighting, camera angle, and the exact action. DO NOT include character descriptions in the English prompt.
 
+Output exactly in this format:
 [한국어 씬 플랜]
-- 장소 및 환경: (상세한 배경 묘사)
-- 분위기 및 조명: (빛의 느낌, 색감 등)
-- 행동 및 카메라: (캐릭터의 구체적인 행동, 감정, 카메라 앵글)
+- 장소 및 풍경: (Detail the background/setting)
+- 분위기 및 조명: (Lighting, weather, mood)
+- 행동 및 특징: (Exact translation of the provided context, without altering the story)
 
 [English AI Prompt]
-(Translate ONLY the environment, lighting, and action/camera into highly descriptive, comma-separated English tags for an AI video generator. Do not mention character appearance here.)`;
+(Comma-separated keywords detailing the setting, lighting, camera, and the specific action taking place, e.g., wide shot, modern living room, dim lighting, person typing on laptop while another person points and laughs)`;
 
-    for (let i = 0; i < rawScenes.length; i++) {
+    for (let i = 0; i < scenes.length; i++) {
       try {
-        const aiResponse = await callAI(sysPrompt, `Scene context: ${rawScenes[i]}`, 0.6);
+        const aiResponse = await callAI(sysPrompt, `Scene context: ${scenes[i]}`, 0.2); // Temperature 낮춰서 환각 방지
         
-        // AI 응답 파싱 (한국어 부분과 영어 부분을 나눔)
         const parts = aiResponse.split("[English AI Prompt]");
         const krPlan = parts[0].replace("[한국어 씬 플랜]", "").trim();
         const enAction = parts[1] ? parts[1].trim() : "Failed to generate action tags.";
 
-        krOutput += `[ Scene ${i + 1} - 원문: ${rawScenes[i]} ]\n${krPlan}\n--------------------\n`;
+        krOutput += `[ Scene ${i + 1} - 원문: ${scenes[i]} ]\n${krPlan}\n--------------------\n`;
         elements.outputKR.value = krOutput;
 
+        // 최종 조립: [고정 캐릭터/스타일] + [해당 씬의 장소/행동]
         enOutput += `[ Scene ${i + 1} ]\n${fixedBasePrompt}, ${enAction.replace(/\n/g, ' ')}\n--------------------\n`;
         elements.outputEN.value = enOutput;
       } catch (e) {
@@ -277,7 +283,7 @@ I will give you a short scene description. You must output EXACTLY in this forma
     });
   });
 
-  // --- 저승사자 랜덤 멘트 (유지) ---
+  // --- 저승사자 랜덤 멘트 ---
   const reaperBubble = document.getElementById("reaperBubble");
   const reaperImg = document.getElementById("reaperImg");
   let reaperInterval;
