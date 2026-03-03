@@ -48,6 +48,26 @@ document.addEventListener("DOMContentLoaded", () => {
       krTitle: "🎬 Scene Plan (Korean)",
       enTitle: "🌐 Final English Prompts (Copy to AI Video Tool)",
       copyEN: "Copy Final Prompts"
+      reaperQuotes: [
+        "오늘 하루는 후회 없었어?",
+        "시간은 참 빠르지...",
+        "너의 기억을 영상으로 보여줄게.",
+        "주마등은 거짓말을 하지 않지 💀",
+        "일기 쓸 내용이 그것뿐이야?",
+        "날 클릭하면 멘트가 바뀐다구!"
+      ]
+    },
+    en: {
+      // ...(기존 내용들 그대로 두고 맨 아래에 추가)...
+      copyEN: "Copy Final Prompts",
+      reaperQuotes: [
+        "Any regrets today?",
+        "Time flies, doesn't it...",
+        "Let me show you your memories.",
+        "Flashbacks don't lie 💀",
+        "Is that all you did today?",
+        "Click me to hear more!"
+      ]
     }
   };
 
@@ -227,5 +247,34 @@ DO NOT describe the character's appearance, ONLY the action, camera, and environ
 
   elements.copyEN.addEventListener("click", () => {
     navigator.clipboard.writeText(elements.outputEN.value).then(() => alert("복사 완료!"));
+  });
+// --- 저승사자 랜덤 멘트 기능 ---
+  const reaperBubble = document.getElementById("reaperBubble");
+  const reaperImg = document.getElementById("reaperImg");
+  let reaperInterval;
+
+  function showReaperMessage() {
+    const lang = elements.langSelect.value;
+    const quotes = translations[lang].reaperQuotes;
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    
+    reaperBubble.innerText = randomQuote;
+    reaperBubble.classList.add("show");
+    
+    // 4초 뒤에 말풍선 숨기기
+    setTimeout(() => {
+      reaperBubble.classList.remove("show");
+    }, 4000);
+  }
+
+  // 12초마다 알아서 멘트 날리기
+  reaperInterval = setInterval(showReaperMessage, 12000);
+
+  // 저승사자를 클릭해도 멘트 나옴 (이스터에그)
+  reaperImg.addEventListener("click", () => {
+    showReaperMessage();
+    // 타이머 꼬이지 않게 리셋
+    clearInterval(reaperInterval);
+    reaperInterval = setInterval(showReaperMessage, 12000);
   });
 });
