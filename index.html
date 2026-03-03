@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>주마등 : 시네마 v15 (Chaining)</title>
+  <title>주마등 : 시네마 v16 (Wisk/Flow 최적화)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,8 +21,8 @@
   </div>
 
   <div class="container">
-    <h1 id="ui_mainTitle">주마등 : 시네마 v15</h1>
-    <p id="ui_subTitle" class="subtitle">AI 프롬프트 체이닝 기반 씬 생성기</p>
+    <h1 id="ui_mainTitle">주마등 : 시네마 v16</h1>
+    <p id="ui_subTitle" class="subtitle">Wisk / Flow / Groq 하이브리드 워크플로우</p>
 
     <div class="panel">
       <label><span id="ui_langLabel">Language:</span>
@@ -37,19 +37,16 @@
       </label>
       <div class="api-help-wrapper">
         <a href="https://console.groq.com/keys" target="_blank" class="api-help-link" id="ui_apiHelp">
-          👉 API 키가 없으신가요? (1분 만에 무료 Groq 키 발급받기)
+          👉 API 키 무료 발급 (Groq)
         </a>
       </div>
 
       <button id="loadModels">모델 리스트 불러오기</button>
-      
-      <label><span id="ui_modelLabel">AI 모델 선택:</span>
-        <select id="aiModel"><option value="">모델 불러오기 필요</option></select>
-      </label>
+      <select id="aiModel"><option value="">모델 선택</option></select>
     </div>
 
     <div class="panel">
-      <h3 id="ui_baseTitle">📚 Base 설정 (일기 및 스타일)</h3>
+      <h3 id="ui_baseTitle">📚 일기 및 스타일 설정</h3>
       <textarea id="diary" placeholder="오늘의 일기를 적어주세요..."></textarea>
       
       <div class="grid-2">
@@ -76,32 +73,33 @@
         </label>
       </div>
       <input id="customStyle" placeholder="스타일 직접 입력" style="display:none; margin-top: 10px;">
-      
-      <label><span id="ui_charDescLabel">캐릭터 특징 요약 (선택):</span>
-        <input id="characterDesc" placeholder="예: 30대 남자, 피곤한 표정, 뿔테 안경">
-      </label>
+      <input id="characterDesc" placeholder="등장인물 특징 요약 (예: 문이-30대 남자, 나-20대 여자)">
 
-      <button id="extractBtn" class="primary-btn">1단계 : 캐릭터 및 스타일 프롬프트 추출</button>
+      <button id="extractBtn" class="primary-btn">1단계 : 캐릭터 오브젝트 추출</button>
     </div>
 
     <div class="panel highlight-panel">
-      <h3 id="ui_fixedTitle">🧬 고정 캐릭터 프롬프트 (수정 가능)</h3>
-      <p id="ui_fixedDesc" class="desc">AI가 일기를 바탕으로 추출한 메인 프롬프트입니다. 자유롭게 태그를 추가/수정하세요.</p>
-      <textarea id="fixedCharacterPrompt" placeholder="1단계를 실행하면 여기에 고정 프롬프트가 생성됩니다."></textarea>
-      
-      <button id="generateScenesBtn" class="success-btn" disabled>2단계 : 씬 분할 및 최종 영문 프롬프트 생성</button>
+      <h3 id="ui_fixedTitle">🧬 캐릭터별 고정 프롬프트 (Wisk Object용)</h3>
+      <p id="ui_fixedDesc" class="desc">캐릭터별로 따로 복사해서 위스크의 Object/Character 설정에 넣으세요.</p>
+      <div id="characterPromptContainer">
+        <textarea id="fixedCharacterPrompt" placeholder="1단계를 실행하면 캐릭터별 프롬프트가 여기에 생성됩니다."></textarea>
+      </div>
+      <button id="generateScenesBtn" class="success-btn" disabled>2단계 : 전체 씬 프롬프트 생성</button>
     </div>
 
-    <div class="stats">
-      <p id="sceneCount"></p>
-    </div>
+    <div class="stats"><p id="sceneCount"></p></div>
 
     <h3 id="ui_krTitle">🎬 한글 씬 플랜</h3>
     <textarea id="outputKR" class="output-area"></textarea>
 
-    <h3 id="ui_enTitle">🌐 최종 영문 프롬프트 (복사해서 AI 영상 툴에 붙여넣기)</h3>
+    <h3 id="ui_imgTitle">🖼️ 이미지 전용 프롬프트 (Wisk/Flow 씬 입력용)</h3>
+    <p class="desc">캐릭터 외모 묘사가 제외된 배경+액션 위주 프롬프트입니다.</p>
+    <textarea id="outputImageEN" class="output-area"></textarea>
+
+    <h3 id="ui_enTitle">🎥 최종 영상 프롬프트 (Groq/Luma/Runway용)</h3>
+    <p class="desc">캐릭터와 액션이 모두 포함된 풀 버전입니다.</p>
     <textarea id="outputEN" class="output-area"></textarea>
-    <button id="copyEN">최종 영문 프롬프트 복사</button>
+    <button id="copyEN">영상 프롬프트 전체 복사</button>
   </div>
 
   <script src="app.js"></script>
