@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- 다국어(i18n) 번역 데이터 ---
+  // --- 다국어(i18n) 데이터 ---
   const translations = {
     ko: {
       mainTitle: "주마등 : 시네마 v16",
@@ -82,43 +82,61 @@ document.addEventListener("DOMContentLoaded", () => {
     fixedPrompt: document.getElementById("fixedCharacterPrompt"),
     generateScenesBtn: document.getElementById("generateScenesBtn"),
     outputKR: document.getElementById("outputKR"),
-    outputImageEN: document.getElementById("outputImageEN"), // 이미지 전용 박스
-    outputEN: document.getElementById("outputEN"),           // 영상 전용 박스
+    outputImageEN: document.getElementById("outputImageEN"),
+    outputEN: document.getElementById("outputEN"),
     copyEN: document.getElementById("copyEN")
   };
 
-  // --- 언어 변환 이벤트 ---
-  elements.langSelect.addEventListener("change", (e) => {
-    const lang = e.target.value;
+  // --- 💡 핵심: 언어 변환 실행 함수 (안전하게 ID 체크 후 변경) ---
+  function updateUI(lang) {
     const t = translations[lang];
-    
-    document.getElementById("ui_mainTitle").innerText = t.mainTitle;
-    document.getElementById("ui_subTitle").innerText = t.subTitle;
-    document.getElementById("ui_langLabel").innerText = t.langLabel;
-    document.getElementById("ui_apiLabel").innerText = t.apiLabel;
-    document.getElementById("ui_apiHelp").innerText = t.apiHelp;
-    document.getElementById("loadModels").innerText = t.loadModels;
-    document.getElementById("ui_modelLabel").innerText = t.modelLabel;
-    document.getElementById("ui_baseTitle").innerText = t.baseTitle;
-    document.getElementById("ui_styleLabel").innerText = t.styleLabel;
-    document.getElementById("ui_charStyleLabel").innerText = t.charStyleLabel;
-    document.getElementById("ui_charDescLabel").innerText = t.charDescLabel;
-    elements.extractBtn.innerText = t.extractBtn;
-    document.getElementById("ui_fixedTitle").innerText = t.fixedTitle;
-    document.getElementById("ui_fixedDesc").innerText = t.fixedDesc;
-    elements.generateScenesBtn.innerText = t.generateScenesBtn;
-    document.getElementById("ui_krTitle").innerText = t.krTitle;
-    document.getElementById("ui_imgTitle").innerText = t.imgTitle;
-    document.getElementById("ui_enTitle").innerText = t.enTitle;
-    elements.copyEN.innerText = t.copyEN;
+    if (!t) return;
 
-    elements.diary.placeholder = t.diaryPlaceholder;
-    elements.customStyle.placeholder = t.customStylePlaceholder;
-    elements.characterDesc.placeholder = t.charDescPlaceholder;
-    elements.fixedPrompt.placeholder = t.fixedPromptPlaceholder;
+    const uiMap = {
+      "ui_mainTitle": t.mainTitle,
+      "ui_subTitle": t.subTitle,
+      "ui_langLabel": t.langLabel,
+      "ui_apiLabel": t.apiLabel,
+      "ui_apiHelp": t.apiHelp,
+      "loadModels": t.loadModels,
+      "ui_modelLabel": t.modelLabel,
+      "ui_baseTitle": t.baseTitle,
+      "ui_styleLabel": t.styleLabel,
+      "ui_charStyleLabel": t.charStyleLabel,
+      "ui_charDescLabel": t.charDescLabel,
+      "ui_fixedTitle": t.fixedTitle,
+      "ui_fixedDesc": t.fixedDesc,
+      "ui_krTitle": t.krTitle,
+      "ui_imgTitle": t.imgTitle,
+      "ui_enTitle": t.enTitle
+    };
+
+    // 텍스트 업데이트
+    for (const [id, value] of Object.entries(uiMap)) {
+      const el = document.getElementById(id);
+      if (el) el.innerText = value;
+    }
+
+    // 버튼 및 플레이스홀더 업데이트
+    if (elements.extractBtn) elements.extractBtn.innerText = t.extractBtn;
+    if (elements.generateScenesBtn) elements.generateScenesBtn.innerText = t.generateScenesBtn;
+    if (elements.copyEN) elements.copyEN.innerText = t.copyEN;
+
+    if (elements.diary) elements.diary.placeholder = t.diaryPlaceholder;
+    if (elements.customStyle) elements.customStyle.placeholder = t.customStylePlaceholder;
+    if (elements.characterDesc) elements.characterDesc.placeholder = t.charDescPlaceholder;
+    if (elements.fixedPrompt) elements.fixedPrompt.placeholder = t.fixedPromptPlaceholder;
+  }
+
+  // 언어 선택 이벤트
+  elements.langSelect.addEventListener("change", (e) => {
+    updateUI(e.target.value);
   });
 
-  // --- UI 설정 및 모델 로드 ---
+  // 초기 실행
+  updateUI("ko");
+
+  // --- UI 설정 (커스텀 스타일 토글) ---
   elements.characterStyle.addEventListener("change", () => {
     elements.customStyle.style.display = elements.characterStyle.value === "custom" ? "block" : "none";
   });
@@ -130,6 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return "unknown";
   }
 
+  // 모델 불러오기
   document.getElementById("loadModels").addEventListener("click", async () => {
     const key = elements.apiKey.value.trim();
     if (!key) return alert("API Key를 입력해주세요.");
@@ -158,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- 공용 AI 호출 함수 ---
+  // 공용 AI 호출 함수
   async function callAI(systemPrompt, userText, temperature = 0.2) {
     const modelId = elements.aiModel.value;
     const apiKey = elements.apiKey.value.trim();
@@ -181,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return type === "gemini" ? data.candidates[0].content.parts[0].text : data.choices[0].message.content;
   }
 
-  // --- 🔥 1단계: 캐릭터별 오브젝트 분할 추출 (Wisk 최적화) ---
+  // --- 🔥 1단계: 캐릭터별 오브젝트 분할 추출 ---
   elements.extractBtn.addEventListener("click", async () => {
     if (!elements.diary.value.trim()) return alert("일기를 먼저 작성해주세요!");
     const lang = elements.langSelect.value;
@@ -189,16 +208,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const styleText = elements.characterStyle.value === "custom" ? elements.customStyle.value : elements.characterStyle.value;
     
-    const sysPrompt = `You are a character design expert. Extract each character's visual appearance from the text to be used as a 'Fixed Object' in Wisk.ai.
+    const sysPrompt = `You are a character design expert. Extract each character's visual appearance into SEPARATE blocks for Wisk.ai.
 RULES:
 1. Divide characters clearly using headers like ### [Character Name].
-2. For each character, provide ONLY physical traits: Age, Ethnicity, Hair, Face, Body, and Outfit.
+2. For each, provide ONLY physical traits: Age, Ethnicity, Hair, Face, Body, and Outfit.
 3. Append this overall style at the end of each block: "${elements.videoStyle.value}, ${styleText}".
-4. DO NOT include background or action.
-
-Example:
-### [Character: Moon]
-30s Korean man, short sharp black hair, sharp jawline, wearing a black silk shirt, Cinematic, 8k, Pixar 3D style`;
+4. DO NOT include background or action.`;
     
     const userPrompt = `Diary: ${elements.diary.value}\nHints: ${elements.characterDesc.value}`;
 
@@ -220,30 +235,28 @@ Example:
     if (!text || !fixedBase) return alert("1단계를 완료하세요!");
 
     const lang = elements.langSelect.value;
-    elements.generateScenesBtn.innerText = lang === "ko" ? "프롬프트 조립 중..." : "Assembling...";
+    elements.generateScenesBtn.innerText = lang === "ko" ? "프롬프트 생성 중..." : "Generating...";
     
     const rawScenes = text.match(/[^.!?\n]+[.!?\n]+/g) || [text];
     const scenes = rawScenes.map(s => s.trim()).filter(s => s.length > 5);
     
     let kr = "", imgEn = "", vidEn = "";
 
-    // 씬 생성용 시스템 프롬프트 (스토리 고정 + 역할 분리)
-    const sysPrompt = `You are an AI video director. For the given scene context:
-1. DO NOT change the story. Stay 100% faithful to the input.
+    const sysPrompt = `You are an AI video director. For the given context:
+1. DO NOT change the story. Stay 100% faithful.
 2. [KR] Provide a detailed Korean scene plan.
-3. [IMG] Provide an English prompt for Wisk/Flow: ONLY environment, lighting, and movement. (Character descriptions are already fixed, so DELETE all mentions of hair, face, or clothing here).
+3. [IMG] Provide an English prompt for Wisk: ONLY environment, lighting, and action. NO character descriptions.
 4. [VID] Provide a Full English Prompt: Character description + [IMG].
 
 Format:
-[KR] (내용)
-[IMG] (Action/Environment Only)
-[VID] (Full Cinematic Prompt)`;
+[KR] (Plan)
+[IMG] (Keywords)
+[VID] (Full Prompt)`;
 
     for (let i = 0; i < scenes.length; i++) {
       try {
         const aiRes = await callAI(sysPrompt, `Scene: ${scenes[i]}`, 0.2);
         
-        // 데이터 파싱
         const parts = {
           kr: aiRes.split("[IMG]")[0].replace("[KR]", "").trim(),
           img: aiRes.split("[IMG]")[1]?.split("[VID]")[0].trim() || "",
@@ -252,7 +265,7 @@ Format:
 
         kr += `[ Scene ${i + 1} - 원문: ${scenes[i]} ]\n${parts.kr}\n--------------------\n`;
         imgEn += `[ Scene ${i + 1} Image ]\n${parts.img}\n--------------------\n`;
-        vidEn += `[ Scene ${i + 1} Video ]\n${fixedBase.split('\n')[1]}, ${parts.vid}\n--------------------\n`;
+        vidEn += `[ Scene ${i + 1} Video ]\n${fixedBase.split('\n')[1] || fixedBase}, ${parts.vid}\n--------------------\n`;
 
         elements.outputKR.value = kr;
         elements.outputImageEN.value = imgEn;
@@ -262,29 +275,26 @@ Format:
     elements.generateScenesBtn.innerText = translations[lang].generateScenesBtn;
   });
 
-  // 복사 기능
+  // 복사
   elements.copyEN.addEventListener("click", () => {
     navigator.clipboard.writeText(elements.outputEN.value).then(() => {
       alert(elements.langSelect.value === "ko" ? "복사 완료!" : "Copied!");
     });
   });
 
-  // --- 저승사자 랜덤 멘트 (유지) ---
+  // 저승사자 랜덤 멘트
   const reaperBubble = document.getElementById("reaperBubble");
   const reaperImg = document.getElementById("reaperImg");
-  let reaperInterval;
   function showReaperMessage() {
     const lang = elements.langSelect.value;
     const quotes = translations[lang].reaperQuotes;
     const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-    reaperBubble.innerText = randomQuote;
-    reaperBubble.classList.add("show");
-    setTimeout(() => { reaperBubble.classList.remove("show"); }, 4000);
+    if (reaperBubble) {
+      reaperBubble.innerText = randomQuote;
+      reaperBubble.classList.add("show");
+      setTimeout(() => { reaperBubble.classList.remove("show"); }, 4000);
+    }
   }
-  reaperInterval = setInterval(showReaperMessage, 12000);
-  reaperImg.addEventListener("click", () => {
-    showReaperMessage();
-    clearInterval(reaperInterval);
-    reaperInterval = setInterval(showReaperMessage, 12000);
-  });
+  setInterval(showReaperMessage, 12000);
+  if (reaperImg) reaperImg.addEventListener("click", showReaperMessage);
 });
